@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>AUCTION X — Cart</title>
+
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="cart.css" />
+</head>
+
+<body class="cart-page">
+
+  <!-- NAVBAR -->
+  <header class="navbar cart-navbar">
+
+    <a href="index.html" class="logo">
+      AUCTION X
+    </a>
+
+    <nav class="nav-links">
+      <a href="index.html#auctions">Auctions</a>
+      <a href="index.html#categories">Categories</a>
+      <a href="index.html#how-it-works">How It Works</a>
+    </nav>
+
+    <div class="nav-actions">
+
+      <a href="index.html" class="nav-action">
+        <span class="nav-action-icon">←</span>
+        <span>Marketplace</span>
+      </a>
+
+      <a href="account.html" class="nav-action">
+        <span class="nav-action-icon">◯</span>
+        <span>Account</span>
+      </a>
+
+      <a href="cart.html" class="nav-action nav-cart active">
+        <span class="nav-action-icon">Bag</span>
+        <span>Cart</span>
+
+        <span
+          class="cart-count"
+          id="cartCount"
+        >
+          0
+        </span>
+      </a>
+
+    </div>
+
+  </header>
+
+
+  <!-- MAIN -->
+  <main class="cart-main">
+
+    <!-- PAGE INTRO -->
+    <section class="cart-intro">
+
+      <div class="cart-intro-copy">
+
+        <span class="cart-eyebrow">
+          AUCTION X / CART
+        </span>
+
+        <h1>
+          Your selected<br />
+          listings.
+        </h1>
+
+        <p>
+          Review the assets you've selected before continuing
+          to checkout.
+        </p>
+
+      </div>
+
+      <div class="cart-intro-meta">
+
+        <span>01</span>
+        <span>REVIEW</span>
+
+      </div>
+
+    </section>
+
+
+    <!-- CART CONTENT -->
+    <section class="cart-layout">
+
+      <!-- ITEMS -->
+      <div class="cart-items-section">
+
+        <div class="cart-section-heading">
+
+          <div>
+            <span>SELECTED ASSETS</span>
+
+            <h2 id="cartItemHeading">
+              0 Listings
+            </h2>
+          </div>
+
+          <button
+            type="button"
+            class="clear-cart"
+            id="clearCart"
+          >
+            Clear Cart
+          </button>
+
+        </div>
+
+
+        <!-- CART ITEMS -->
+        <div
+          class="cart-items"
+          id="cartItems"
+        ></div>
+
+
+        <!-- EMPTY CART -->
+        <div
+          class="cart-empty"
+          id="cartEmpty"
+          hidden
+        >
+
+          <div class="cart-empty-mark">
+            —
+          </div>
+
+          <span>
+            YOUR CART IS EMPTY
+          </span>
+
+          <h3>
+            Nothing selected yet.
+          </h3>
+
+          <p>
+            Explore the AUCTION X marketplace and add
+            listings you want to review here.
+          </p>
+
+          <a
+            href="index.html#auctions"
+            class="cart-empty-button"
+          >
+            Browse Marketplace
+          </a>
+
+        </div>
+
+
+        <!-- CONTINUE SHOPPING -->
+        <div class="cart-continue">
+
+          <a href="index.html#auctions">
+            ← Continue Browsing
+          </a>
+
+        </div>
+
+      </div>
+
+
+      <!-- SUMMARY -->
+      <aside class="cart-summary">
+
+        <div class="summary-top">
+
+          <span>
+            ORDER SUMMARY
+          </span>
+
+          <span>
+            01 / 03
+          </span>
+
+        </div>
+
+
+        <div class="summary-heading">
+
+          <h2>
+            Review & Continue
+          </h2>
+
+          <p>
+            Your final total will be confirmed
+            during checkout.
+          </p>
+
+        </div>
+
+
+        <div class="summary-lines">
+
+          <div class="summary-line">
+
+            <span>
+              Items
+            </span>
+
+            <strong id="summaryItems">
+              $0
+            </strong>
+
+          </div>
+
+          <div class="summary-line">
+
+            <span>
+              Shipping
+            </span>
+
+            <strong id="summaryShipping">
+              Calculated later
+            </strong>
+
+          </div>
+
+          <div class="summary-line">
+
+            <span>
+              Service
+            </span>
+
+            <strong id="summaryService">
+              $0
+            </strong>
+
+          </div>
+
+        </div>
+
+
+        <div class="summary-total">
+
+          <span>
+            ESTIMATED TOTAL
+          </span>
+
+          <strong id="summaryTotal">
+            $0
+          </strong>
+
+        </div>
+
+
+        <button
+          type="button"
+          class="checkout-button"
+          id="checkoutButton"
+        >
+          Proceed to Checkout
+          <span>→</span>
+        </button>
+
+
+        <div class="summary-note">
+
+          <span class="note-mark">
+            i
+          </span>
+
+          <p>
+            Checkout and payment processing will be
+            connected after the marketplace flow is complete.
+          </p>
+
+        </div>
+
+
+        <div class="secure-note">
+
+          <span>SECURE MARKETPLACE</span>
+
+          <span>
+            AUCTION X
+          </span>
+
+        </div>
+
+      </aside>
+
+    </section>
+
+
+    <!-- CART INFORMATION -->
+    <section class="cart-information">
+
+      <div class="cart-info-item">
+
+        <span>01</span>
+
+        <div>
+          <strong>
+            Review
+          </strong>
+
+          <p>
+            Confirm the listings you've selected.
+          </p>
+        </div>
+
+      </div>
+
+
+      <div class="cart-info-item">
+
+        <span>02</span>
+
+        <div>
+          <strong>
+            Checkout
+          </strong>
+
+          <p>
+            Enter your delivery and order information.
+          </p>
+        </div>
+
+      </div>
+
+
+      <div class="cart-info-item">
+
+        <span>03</span>
+
+        <div>
+          <strong>
+            Confirmation
+          </strong>
+
+          <p>
+            Review the final order before completion.
+          </p>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <!-- ================= FOOTER ================= -->
+
+<footer class="footer">
+
+  <div class="footer-main">
+
+    <div class="footer-brand">
+
+      <a href="index.html" class="logo">
+        AUCTION <span>X</span>
+      </a>
+
+      <p class="footer-description">
+        A global marketplace for premium technology,
+        luxury goods, vehicles, equipment and unique assets.
+      </p>
+
+      <div class="footer-status">
+        <span class="footer-status-dot"></span>
+        MARKETPLACE ONLINE
+      </div>
+
+    </div>
+
+
+    <div class="footer-links">
+
+      <div class="footer-column">
+
+        <span class="footer-heading">
+          MARKETPLACE
+        </span>
+
+        <a href="index.html#auctions">
+          Auctions
+        </a>
+
+        <a href="index.html#categories">
+          Categories
+        </a>
+
+        <a href="index.html#auctions">
+          Featured Listings
+        </a>
+
+        <a href="index.html#how-it-works">
+          How It Works
+        </a>
+
+      </div>
+
+
+      <div class="footer-column">
+
+        <span class="footer-heading">
+          COMPANY
+        </span>
+
+        <a href="#">
+          About AUCTION X
+        </a>
+
+        <a href="#">
+          Contact
+        </a>
+
+        <a href="#">
+          Sell With Us
+        </a>
+
+        <a href="#">
+          Careers
+        </a>
+
+      </div>
+
+
+      <div class="footer-column">
+
+        <span class="footer-heading">
+          SUPPORT
+        </span>
+
+        <a href="#">
+          Help Center
+        </a>
+
+        <a href="#">
+          Shipping
+        </a>
+
+        <a href="#">
+          Payments
+        </a>
+
+        <a href="#">
+          Returns
+        </a>
+
+      </div>
+
+
+      <div class="footer-column">
+
+        <span class="footer-heading">
+          LEGAL
+        </span>
+
+        <a href="#">
+          Privacy
+        </a>
+
+        <a href="#">
+          Terms
+        </a>
+
+        <a href="#">
+          Buyer Protection
+        </a>
+
+        <a href="#">
+          Cookie Policy
+        </a>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="footer-middle">
+
+    <div>
+
+      <span class="footer-meta-label">
+        OPERATING MARKET
+      </span>
+
+      <strong>
+        UNITED STATES
+      </strong>
+
+    </div>
+
+
+    <div>
+
+      <span class="footer-meta-label">
+        CURRENCY
+      </span>
+
+      <strong>
+        USD / $
+      </strong>
+
+    </div>
+
+
+    <div>
+
+      <span class="footer-meta-label">
+        PLATFORM
+      </span>
+
+      <strong>
+        AUCTION X
+      </strong>
+
+    </div>
+
+
+    <div class="footer-mark">
+      X
+    </div>
+
+  </div>
+
+
+  <div class="footer-bottom">
+
+    <span>
+      © 2026 AUCTION X. ALL RIGHTS RESERVED.
+    </span>
+
+    <span>
+      PREMIUM MARKETPLACE
+    </span>
+
+  </div>
+
+</footer>
+
+
+  <script src="cart.js"></script>
+
+</body>
+</html>

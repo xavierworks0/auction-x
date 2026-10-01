@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <title>AUCTION X — Listing</title>
+
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="listing.css" />
+</head>
+
+<body class="listing-page">
+
+  <!-- NAVIGATION -->
+  <header class="navbar listing-navbar">
+  <div class="navbar-inner">
+
+    <a href="index.html" class="logo">
+      AUCTION <span>X</span>
+    </a>
+
+    <nav class="nav-links">
+      <a href="index.html">Marketplace</a>
+      <a href="index.html#categories">Categories</a>
+      <a href="index.html#auctions">Auctions</a>
+      <a href="index.html#how-it-works">How It Works</a>
+    </nav>
+
+    <div class="listing-nav-controls">
+
+      <a href="account.html" class="listing-nav-item">
+        <span class="listing-nav-dot"></span>
+        Account
+      </a>
+
+      <span class="listing-nav-divider"></span>
+
+      <a href="cart.html" class="listing-nav-item listing-cart-nav">
+        Cart
+        <span class="cart-count" id="cartCount">0</span>
+      </a>
+
+    </div>
+
+  </div>
+</header>
+
+  <!-- LISTING -->
+  <main class="listing-main">
+
+    <div class="listing-breadcrumb">
+      <a href="index.html">Marketplace</a>
+      <span>/</span>
+      <span id="breadcrumbTitle">Listing</span>
+    </div>
+
+
+    <section class="listing-hero">
+
+      <!-- IMAGE -->
+      <div class="listing-media">
+
+        <div class="listing-image-frame">
+
+          <img
+            id="listingImage"
+            src=""
+            alt=""
+          />
+
+          <span class="listing-status">
+            AVAILABLE
+          </span>
+
+        </div>
+
+        <div class="image-caption">
+          <span>AUCTION X</span>
+          <span>MARKETPLACE LISTING</span>
+        </div>
+
+      </div>
+
+
+      <!-- INFORMATION -->
+      <div class="listing-info">
+
+        <div
+          class="listing-category"
+          id="listingCategory"
+        >
+          GADGETS
+        </div>
+
+        <h1 id="listingTitle">
+          Product
+        </h1>
+
+        <p
+          class="listing-description"
+          id="listingDescription"
+        >
+          Product description.
+        </p>
+
+
+        <div class="listing-price-block">
+
+          <span>LISTED PRICE</span>
+
+          <strong id="listingPrice">
+            $0
+          </strong>
+
+          <small>
+            Demonstration marketplace price
+          </small>
+
+        </div>
+
+
+       <div class="listing-actions">
+
+  <button
+    type="button"
+    class="listing-cart"
+    id="addToCartButton"
+  >
+    Add to Cart
+    <span>→</span>
+  </button>
+
+  <button
+    type="button"
+    class="listing-watch"
+    id="watchButton"
+  >
+    ♡ Add to Watchlist
+  </button>
+
+  <a
+    href="#details"
+    class="listing-primary"
+  >
+    View Details
+  </a>
+
+</div>
+
+
+        <div class="listing-meta-grid">
+
+          <div>
+            <span>CONDITION</span>
+            <strong id="listingCondition">
+              —
+            </strong>
+          </div>
+
+          <div>
+            <span>LOCATION</span>
+            <strong id="listingLocation">
+              —
+            </strong>
+          </div>
+
+          <div>
+            <span>STATUS</span>
+            <strong>
+              Available
+            </strong>
+          </div>
+
+          <div>
+            <span>LISTING</span>
+            <strong>
+              AUCTION X
+            </strong>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- DETAILS -->
+    <section
+      class="listing-details-section"
+      id="details"
+    >
+
+      <div class="section-heading">
+
+        <span>01 / LISTING</span>
+
+        <h2>
+          Everything you need
+          to know.
+        </h2>
+
+      </div>
+
+
+      <div class="details-layout">
+
+        <div class="overview-card">
+
+          <span class="detail-label">
+            OVERVIEW
+          </span>
+
+          <p id="detailOverview">
+            —
+          </p>
+
+        </div>
+
+
+        <div class="specifications-card">
+
+          <span class="detail-label">
+            SPECIFICATIONS
+          </span>
+
+          <div
+            class="specifications-list"
+            id="specifications"
+          >
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- LISTING INFORMATION -->
+    <section class="listing-information">
+
+      <div>
+        <span>LISTING TYPE</span>
+        <strong>Marketplace Asset</strong>
+      </div>
+
+      <div>
+        <span>VERIFICATION</span>
+        <strong>Listing Information</strong>
+      </div>
+
+      <div>
+        <span>MARKET</span>
+        <strong>United States</strong>
+      </div>
+
+      <div>
+        <span>REFERENCE</span>
+        <strong id="listingReference">
+          AX-0000
+        </strong>
+      </div>
+
+    </section>
+
+
+    <!-- MORE ITEMS -->
+    <section class="related-section">
+
+      <div class="section-heading related-heading">
+
+        <div>
+          <span>02 / EXPLORE</span>
+
+          <h2>
+            More from
+            AUCTION X.
+          </h2>
+        </div>
+
+        <a href="index.html#auctions">
+          View Marketplace →
+        </a>
+
+      </div>
+
+      <div
+        class="related-grid"
+        id="relatedProducts"
+      >
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <!-- ================= FOOTER ================= -->
+
+<footer class="footer">
+
+  <div class="footer-main">
+
+    <div class="footer-brand">
+
+      <a href="index.html" class="logo">
+        AUCTION <span>X</span>
+      </a>
+
+      <p class="footer-description">
+        A global marketplace for premium technology,
+        luxury goods, vehicles, equipment and unique assets.
+      </p>
+
+      <div class="footer-status">
+        <span class="footer-status-dot"></span>
+        MARKETPLACE ONLINE
+      </div>
+
+    </div>
+
+
+    <div class="footer-links">
+
+      <div class="footer-column">
+
+        <span class="footer-heading">
+          MARKETPLACE
+        </span>
+
+        <a href="index.html#auctions">
+          Auctions
+        </a>
+
+        <a href="index.html#categories">
+          Categories
+        </a>
+
+        <a href="index.html#auctions">
+          Featured Listings
+        </a>
+
+        <a href="index.html#how-it-works">
+          How It Works
+        </a>
+
+      </div>
+
+
+      <div class="footer-column">
+
+        <span class="footer-heading">
+          COMPANY
+        </span>
+
+        <a href="#">
+          About AUCTION X
+        </a>
+
+        <a href="#">
+          Contact
+        </a>
+
+        <a href="#">
+          Sell With Us
+        </a>
+
+        <a href="#">
+          Careers
+        </a>
+
+      </div>
+
+
+      <div class="footer-column">
+
+        <span class="footer-heading">
+          SUPPORT
+        </span>
+
+        <a href="#">
+          Help Center
+        </a>
+
+        <a href="#">
+          Shipping
+        </a>
+
+        <a href="#">
+          Payments
+        </a>
+
+        <a href="#">
+          Returns
+        </a>
+
+      </div>
+
+
+      <div class="footer-column">
+
+        <span class="footer-heading">
+          LEGAL
+        </span>
+
+        <a href="#">
+          Privacy
+        </a>
+
+        <a href="#">
+          Terms
+        </a>
+
+        <a href="#">
+          Buyer Protection
+        </a>
+
+        <a href="#">
+          Cookie Policy
+        </a>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="footer-middle">
+
+    <div>
+
+      <span class="footer-meta-label">
+        OPERATING MARKET
+      </span>
+
+      <strong>
+        UNITED STATES
+      </strong>
+
+    </div>
+
+
+    <div>
+
+      <span class="footer-meta-label">
+        CURRENCY
+      </span>
+
+      <strong>
+        USD / $
+      </strong>
+
+    </div>
+
+
+    <div>
+
+      <span class="footer-meta-label">
+        PLATFORM
+      </span>
+
+      <strong>
+        AUCTION X
+      </strong>
+
+    </div>
+
+
+    <div class="footer-mark">
+      X
+    </div>
+
+  </div>
+
+
+  <div class="footer-bottom">
+
+    <span>
+      © 2026 AUCTION X. ALL RIGHTS RESERVED.
+    </span>
+
+    <span>
+      PREMIUM MARKETPLACE
+    </span>
+
+  </div>
+
+</footer>
+
+  <script src="script.js"></script>
+  <script src="listing.js"></script>
+
+</body>
+</html>

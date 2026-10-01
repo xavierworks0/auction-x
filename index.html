@@ -1,0 +1,1927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>AUCTION X — Premium Marketplace</title>
+
+  <meta
+    name="description"
+    content="AUCTION X — Discover vehicles, technology, luxury goods and premium assets."
+  >
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <!-- ================= SEARCH DIALOG ================= -->
+
+  <dialog class="search-dialog" id="searchDialog">
+    <div class="search-dialog-inner">
+
+      <div class="search-dialog-top">
+
+        <div>
+          <span class="search-eyebrow">
+            AUCTION X / SEARCH
+          </span>
+
+          <h2>
+            Find something worth owning.
+          </h2>
+        </div>
+
+        <button
+          type="button"
+          class="search-close"
+          id="closeSearch"
+          aria-label="Close search"
+        >
+          ×
+        </button>
+
+      </div>
+
+
+      <search class="global-search">
+
+        <form id="globalSearchForm">
+
+          <div class="global-search-input">
+
+            <span>⌕</span>
+
+            <input
+              type="search"
+              id="globalSearchInput"
+              name="q"
+              placeholder="Search products, brands, categories..."
+              autocomplete="off"
+            >
+
+            <kbd>ESC</kbd>
+
+          </div>
+
+        </form>
+
+      </search>
+
+
+      <div class="search-suggestions">
+
+        <span class="search-label">
+          POPULAR
+        </span>
+
+        <div class="search-tags">
+
+          <button
+            type="button"
+            data-search="Apple"
+          >
+            Apple
+          </button>
+
+          <button
+            type="button"
+            data-search="Samsung"
+          >
+            Samsung
+          </button>
+
+          <button
+            type="button"
+            data-search="MacBook"
+          >
+            MacBook
+          </button>
+
+          <button
+            type="button"
+            data-search="Rolex"
+          >
+            Rolex
+          </button>
+
+          <button
+            type="button"
+            data-search="Cartier"
+          >
+            Cartier
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <div class="search-results-panel">
+
+        <div class="search-results-heading">
+
+          <span>
+            RESULTS
+          </span>
+
+          <span id="globalSearchCount">
+            0 items
+          </span>
+
+        </div>
+
+        <div
+          id="globalSearchResults"
+          class="global-search-results"
+        ></div>
+
+      </div>
+
+    </div>
+  </dialog>
+
+
+  <!-- ================= NAVBAR ================= -->
+
+  <header class="navbar">
+
+    <a href="#" class="logo">
+      AUCTION <span>X</span>
+    </a>
+
+
+    <nav class="nav-links">
+
+      <a href="#auctions">
+        Auctions
+      </a>
+
+      <a href="#categories">
+        Categories
+      </a>
+
+      <a href="#featured">
+        Featured
+      </a>
+
+      <a href="#how-it-works">
+        How It Works
+      </a>
+
+    </nav>
+
+
+    <div class="nav-actions">
+
+      <button
+        type="button"
+        class="nav-action nav-search"
+        id="openSearch"
+      >
+        <span class="nav-action-icon">
+          ⌕
+        </span>
+
+        <span>
+          Search
+        </span>
+      </button>
+
+
+      <a
+        href="account.html"
+        class="nav-action"
+      >
+        <span class="nav-action-icon">
+          ◯
+        </span>
+
+        <span>
+          Account
+        </span>
+      </a>
+
+
+      <a
+        href="cart.html"
+        class="nav-action nav-cart"
+      >
+        <span class="nav-action-icon">
+          Bag
+        </span>
+
+        <span>
+          Cart
+        </span>
+
+        <span
+          class="cart-count"
+          id="cartCount"
+        >
+          0
+        </span>
+
+      </a>
+
+    </div>
+
+  </header>
+
+
+  <!-- ================= HERO ================= -->
+
+  <main>
+
+    <section class="hero">
+
+      <div class="hero-content">
+
+        <div class="eyebrow">
+
+          <span class="live-dot"></span>
+
+          LIVE MARKETPLACE
+
+        </div>
+
+
+        <h1>
+          FIND IT.
+          <br>
+          <span>BID ON IT.</span>
+          <br>
+          OWN IT.
+        </h1>
+
+
+        <p>
+          Discover premium technology, vehicles, luxury goods,
+          equipment and unique assets through AUCTION X.
+        </p>
+
+
+        <div class="hero-actions">
+
+          <a
+            href="#auctions"
+            class="primary-btn"
+          >
+            Explore Auctions
+          </a>
+
+
+          <a
+            href="#how-it-works"
+            class="secondary-btn"
+          >
+            How It Works
+          </a>
+
+        </div>
+
+
+        <div class="hero-meta">
+
+          <div>
+            <strong>01</strong>
+            <span>DISCOVER</span>
+          </div>
+
+          <div>
+            <strong>02</strong>
+            <span>BID</span>
+          </div>
+
+          <div>
+            <strong>03</strong>
+            <span>OWN</span>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ================= SEARCH ================= -->
+
+    <section class="search-section">
+
+      <div class="search-box">
+
+        <span class="search-icon">
+          ⌕
+        </span>
+
+        <input
+          type="text"
+          id="searchInput"
+          placeholder="Search phones, laptops, watches, vehicles..."
+          autocomplete="off"
+        >
+
+        <button
+          type="button"
+          id="searchButton"
+        >
+          Search
+        </button>
+
+      </div>
+
+    </section>
+
+
+    <!-- ================= CATEGORIES ================= -->
+
+    <section
+      class="categories-section"
+      id="categories"
+    >
+
+      <div class="section-heading">
+
+        <div>
+
+          <span class="section-label">
+            01 / CATEGORIES
+          </span>
+
+          <h2>
+            Explore the
+            <br>
+            marketplace.
+          </h2>
+
+        </div>
+
+
+        <p>
+          Browse AUCTION X by category and discover
+          listings across technology, vehicles, luxury
+          and more.
+        </p>
+
+      </div>
+
+
+      <div class="category-grid">
+
+        <button
+          type="button"
+          class="category-card"
+          data-category="gadgets"
+        >
+          <span class="category-number">
+            01
+          </span>
+
+          <strong>
+            Gadgets
+          </strong>
+
+          <small>
+            Phones · Laptops · Audio
+          </small>
+        </button>
+
+
+        <button
+          type="button"
+          class="category-card"
+          data-category="vehicles"
+        >
+          <span class="category-number">
+            02
+          </span>
+
+          <strong>
+            Vehicles
+          </strong>
+
+          <small>
+            Cars · SUVs · Trucks
+          </small>
+        </button>
+
+
+        <button
+          type="button"
+          class="category-card"
+          data-category="luxury"
+        >
+          <span class="category-number">
+            03
+          </span>
+
+          <strong>
+            Luxury
+          </strong>
+
+          <small>
+            Watches · Jewelry · Bags
+          </small>
+        </button>
+
+
+        <button
+          type="button"
+          class="category-card"
+          data-category="equipment"
+        >
+          <span class="category-number">
+            04
+          </span>
+
+          <strong>
+            Equipment
+          </strong>
+
+          <small>
+            Industrial · Office · More
+          </small>
+        </button>
+
+
+        <button
+          type="button"
+          class="category-card"
+          data-category="other"
+        >
+          <span class="category-number">
+            05
+          </span>
+
+          <strong>
+            Other Assets
+          </strong>
+
+          <small>
+            Furniture · Appliances · More
+          </small>
+        </button>
+
+      </div>
+
+    </section>
+
+
+    <!-- ================= AUCTION CATALOG ================= -->
+
+    <section
+      class="catalog-section"
+      id="auctions"
+    >
+
+      <div class="catalog-header">
+
+        <div>
+
+          <span class="section-label">
+            02 / AUCTION CATALOG
+          </span>
+
+          <h2>
+            Find your
+            <br>
+            next acquisition.
+          </h2>
+
+        </div>
+
+
+        <div class="catalog-controls">
+
+          <select id="categoryFilter">
+
+            <option value="all">
+              All Categories
+            </option>
+
+            <option value="gadgets">
+              Gadgets
+            </option>
+
+            <option value="vehicles">
+              Vehicles
+            </option>
+
+            <option value="luxury">
+              Luxury
+            </option>
+
+            <option value="equipment">
+              Equipment
+            </option>
+
+            <option value="other">
+              Other Assets
+            </option>
+
+          </select>
+
+
+          <select id="brandFilter">
+
+            <option value="all">
+              All Brands
+            </option>
+
+            <option value="apple">
+              Apple
+            </option>
+
+            <option value="samsung">
+              Samsung
+            </option>
+
+            <option value="macbook">
+              MacBook
+            </option>
+
+            <option value="rolex">
+              Rolex
+            </option>
+
+            <option value="cartier">
+              Cartier
+            </option>
+
+          </select>
+
+
+          <select id="typeFilter">
+
+            <option value="all">
+              All Types
+            </option>
+
+            <option value="phone">
+              Smartphones
+            </option>
+
+            <option value="laptop">
+              Laptops
+            </option>
+
+            <option value="foldable">
+              Foldables
+            </option>
+
+            <option value="watch">
+              Watches
+            </option>
+
+          </select>
+
+
+          <select id="sortFilter">
+
+            <option value="featured">
+              Featured
+            </option>
+
+            <option value="low">
+              Price: Low → High
+            </option>
+
+            <option value="high">
+              Price: High → Low
+            </option>
+
+            <option value="newest">
+              Newest
+            </option>
+
+          </select>
+
+        </div>
+
+      </div>
+
+
+      <!-- ================= BRAND QUICK FILTER ================= -->
+
+      <div class="brand-selector">
+
+        <button
+          type="button"
+          class="brand-pill active"
+          data-brand="all"
+        >
+          All
+        </button>
+
+        <button
+          type="button"
+          class="brand-pill"
+          data-brand="apple"
+        >
+          Apple
+        </button>
+
+        <button
+          type="button"
+          class="brand-pill"
+          data-brand="samsung"
+        >
+          Samsung
+        </button>
+
+        <button
+          type="button"
+          class="brand-pill"
+          data-brand="macbook"
+        >
+          MacBook
+        </button>
+
+        <button
+          type="button"
+          class="brand-pill"
+          data-brand="rolex"
+        >
+          Rolex
+        </button>
+
+        <button
+          type="button"
+          class="brand-pill"
+          data-brand="cartier"
+        >
+          Cartier
+        </button>
+
+      </div>
+
+
+      <!-- ================= PRODUCT COUNT ================= -->
+
+      <div class="catalog-status">
+
+        <span>
+          Showing
+          <strong id="productCount">
+            12
+          </strong>
+          listings
+        </span>
+
+        <button
+          type="button"
+          id="clearFilters"
+        >
+          Clear Filters
+        </button>
+
+      </div>
+
+
+      <!-- ================= PRODUCT GRID ================= -->
+
+      <div
+        class="product-grid"
+        id="productGrid"
+      >
+
+
+        <!-- ================= APPLE ================= -->
+
+        <article
+          class="product-card"
+          data-category="gadgets"
+          data-brand="apple"
+          data-type="phone"
+          data-price="1200"
+          data-name="iPhone 17 Pro"
+        >
+
+          <div class="product-image">
+
+            <img
+              src="assets/images/iphone-17-pro.jpg"
+              alt="iPhone 17 Pro"
+              loading="lazy"
+            >
+
+            <span class="product-status">
+              LIVE
+            </span>
+
+            <button
+              type="button"
+              class="favorite-btn"
+              aria-label="Add iPhone 17 Pro to favorites"
+            >
+              ♡
+            </button>
+
+          </div>
+
+
+          <div class="product-info">
+
+            <span class="product-category">
+              APPLE / SMARTPHONE
+            </span>
+
+            <h3>
+              iPhone 17 Pro
+            </h3>
+
+            <p>
+              Latest-generation Apple smartphone.
+            </p>
+
+            <div class="product-bottom">
+
+              <div>
+
+                <small>
+                  Current Bid
+                </small>
+
+                <strong>
+                  $1,200
+                </strong>
+
+              </div>
+
+              <button
+                type="button"
+                class="view-lot"
+              >
+                View Lot →
+              </button>
+
+            </div>
+
+          </div>
+
+        </article>
+
+
+        <article
+          class="product-card"
+          data-category="gadgets"
+          data-brand="apple"
+          data-type="phone"
+          data-price="1350"
+          data-name="iPhone 17 Pro Max"
+        >
+
+          <div class="product-image">
+
+            <img
+              src="assets/images/iphone-17-pro-max.jpg"
+              alt="iPhone 17 Pro Max"
+              loading="lazy"
+            >
+
+            <span class="product-status">
+              LIVE
+            </span>
+
+            <button
+              type="button"
+              class="favorite-btn"
+              aria-label="Add iPhone 17 Pro Max to favorites"
+            >
+              ♡
+            </button>
+
+          </div>
+
+
+          <div class="product-info">
+
+            <span class="product-category">
+              APPLE / SMARTPHONE
+            </span>
+
+            <h3>
+              iPhone 17 Pro Max
+            </h3>
+
+            <p>
+              Premium Apple flagship smartphone.
+            </p>
+
+            <div class="product-bottom">
+
+              <div>
+
+                <small>
+                  Current Bid
+                </small>
+
+                <strong>
+                  $1,350
+                </strong>
+
+              </div>
+
+              <button
+                type="button"
+                class="view-lot"
+              >
+                View Lot →
+              </button>
+
+            </div>
+
+          </div>
+
+        </article>
+
+
+        <article
+          class="product-card"
+          data-category="gadgets"
+          data-brand="apple"
+          data-type="phone"
+          data-price="950"
+          data-name="iPhone 16 Pro"
+        >
+
+          <div class="product-image">
+
+            <img
+              src="assets/images/iphone-16-pro.jpg"
+              alt="iPhone 16 Pro"
+              loading="lazy"
+            >
+
+            <span class="product-status">
+              LIVE
+            </span>
+
+            <button
+              type="button"
+              class="favorite-btn"
+              aria-label="Add iPhone 16 Pro to favorites"
+            >
+              ♡
+            </button>
+
+          </div>
+
+
+          <div class="product-info">
+
+            <span class="product-category">
+              APPLE / SMARTPHONE
+            </span>
+
+            <h3>
+              iPhone 16 Pro
+            </h3>
+
+            <p>
+              Professional-grade Apple smartphone.
+            </p>
+
+            <div class="product-bottom">
+
+              <div>
+
+                <small>
+                  Current Bid
+                </small>
+
+                <strong>
+                  $950
+                </strong>
+
+              </div>
+
+              <button
+                type="button"
+                class="view-lot"
+              >
+                View Lot →
+              </button>
+
+            </div>
+
+          </div>
+
+        </article>
+
+
+        <article
+          class="product-card"
+          data-category="gadgets"
+          data-brand="apple"
+          data-type="phone"
+          data-price="1050"
+          data-name="iPhone 16 Pro Max"
+        >
+
+          <div class="product-image">
+
+            <img
+              src="assets/images/iphone-16-pro-max.jpg"
+              alt="iPhone 16 Pro Max"
+              loading="lazy"
+            >
+
+            <span class="product-status">
+              LIVE
+            </span>
+
+            <button
+              type="button"
+              class="favorite-btn"
+              aria-label="Add iPhone 16 Pro Max to favorites"
+            >
+              ♡
+            </button>
+
+          </div>
+
+
+          <div class="product-info">
+
+            <span class="product-category">
+              APPLE / SMARTPHONE
+            </span>
+
+            <h3>
+              iPhone 16 Pro Max
+            </h3>
+
+            <p>
+              Large-format Apple flagship.
+            </p>
+
+            <div class="product-bottom">
+
+              <div>
+
+                <small>
+                  Current Bid
+                </small>
+
+                <strong>
+                  $1,050
+                </strong>
+
+              </div>
+
+              <button
+                type="button"
+                class="view-lot"
+              >
+                View Lot →
+              </button>
+
+            </div>
+
+          </div>
+
+        </article>
+
+
+        <article
+          class="product-card"
+          data-category="gadgets"
+          data-brand="apple"
+          data-type="phone"
+          data-price="800"
+          data-name="iPhone 16"
+        >
+
+          <div class="product-image">
+
+            <img
+              src="assets/images/iphone-16.jpg"
+              alt="iPhone 16"
+              loading="lazy"
+            >
+
+            <span class="product-status">
+              LIVE
+            </span>
+
+            <button
+              type="button"
+              class="favorite-btn"
+              aria-label="Add iPhone 16 to favorites"
+            >
+              ♡
+            </button>
+
+          </div>
+
+
+          <div class="product-info">
+
+            <span class="product-category">
+              APPLE / SMARTPHONE
+            </span>
+
+            <h3>
+              iPhone 16
+            </h3>
+
+            <p>
+              Current-generation Apple smartphone.
+            </p>
+
+            <div class="product-bottom">
+
+              <div>
+
+                <small>
+                  Current Bid
+                </small>
+
+                <strong>
+                  $800
+                </strong>
+
+              </div>
+
+              <button
+                type="button"
+                class="view-lot"
+              >
+                View Lot →
+              </button>
+
+            </div>
+
+          </div>
+
+        </article>
+
+
+        <article
+          class="product-card"
+          data-category="gadgets"
+          data-brand="apple"
+          data-type="phone"
+          data-price="650"
+          data-name="iPhone 15 Pro"
+        >
+
+          <div class="product-image">
+
+            <img
+              src="assets/images/iphone-15-pro.jpg"
+              alt="iPhone 15 Pro"
+              loading="lazy"
+            >
+
+            <span class="product-status">
+              LIVE
+            </span>
+
+            <button
+              type="button"
+              class="favorite-btn"
+              aria-label="Add iPhone 15 Pro to favorites"
+            >
+              ♡
+            </button>
+
+          </div>
+
+
+          <div class="product-info">
+
+            <span class="product-category">
+              APPLE / SMARTPHONE
+            </span>
+
+            <h3>
+              iPhone 15 Pro
+            </h3>
+
+            <p>
+              Titanium Apple Pro smartphone.
+            </p>
+
+            <div class="product-bottom">
+
+              <div>
+
+                <small>
+                  Current Bid
+                </small>
+
+                <strong>
+                  $650
+                </strong>
+
+              </div>
+
+              <button
+                type="button"
+                class="view-lot"
+              >
+                View Lot →
+              </button>
+
+            </div>
+
+          </div>
+
+        </article>
+
+
+        <article
+          class="product-card"
+          data-category="gadgets"
+          data-brand="apple"
+          data-type="phone"
+          data-price="520"
+          data-name="iPhone 14 Pro"
+        >
+
+          <div class="product-image">
+
+            <img
+              src="assets/images/iphone-14-pro.jpg"
+              alt="iPhone 14 Pro"
+              loading="lazy"
+            >
+
+            <span class="product-status">
+              LIVE
+            </span>
+
+            <button
+              type="button"
+              class="favorite-btn"
+              aria-label="Add iPhone 14 Pro to favorites"
+            >
+              ♡
+            </button>
+
+          </div>
+
+
+          <div class="product-info">
+
+            <span class="product-category">
+              APPLE / SMARTPHONE
+            </span>
+
+            <h3>
+              iPhone 14 Pro
+            </h3>
+
+            <p>
+              Previous-generation Apple Pro model.
+            </p>
+
+            <div class="product-bottom">
+
+              <div>
+
+                <small>
+                  Current Bid
+                </small>
+
+                <strong>
+                  $520
+                </strong>
+
+              </div>
+
+              <button
+                type="button"
+                class="view-lot"
+              >
+                View Lot →
+              </button>
+
+            </div>
+
+          </div>
+
+        </article>
+
+
+        <!-- ================= SAMSUNG ================= -->
+
+        <article
+          class="product-card"
+          data-category="gadgets"
+          data-brand="samsung"
+          data-type="phone"
+          data-price="1100"
+          data-name="Galaxy S26 Ultra"
+        >
+
+          <div class="product-image">
+
+            <img
+              src="assets/images/galaxy-s26-ultra.jpg"
+              alt="Samsung Galaxy S26 Ultra"
+              loading="lazy"
+            >
+
+            <span class="product-status">
+              LIVE
+            </span>
+
+            <button
+              type="button"
+              class="favorite-btn"
+              aria-label="Add Galaxy S26 Ultra to favorites"
+            >
+              ♡
+            </button>
+
+          </div>
+
+
+          <div class="product-info">
+
+            <span class="product-category">
+              SAMSUNG / SMARTPHONE
+            </span>
+
+            <h3>
+              Galaxy S26 Ultra
+            </h3>
+
+            <p>
+              Samsung flagship Android smartphone.
+            </p>
+
+            <div class="product-bottom">
+
+              <div>
+
+                <small>
+                  Current Bid
+                </small>
+
+                <strong>
+                  $1,100
+                </strong>
+
+              </div>
+
+              <button
+                type="button"
+                class="view-lot"
+              >
+                View Lot →
+              </button>
+
+            </div>
+
+          </div>
+
+        </article>
+
+
+        <article
+          class="product-card"
+          data-category="gadgets"
+          data-brand="samsung"
+          data-type="foldable"
+          data-price="1250"
+          data-name="Galaxy Z Fold"
+        >
+
+          <div class="product-image">
+
+            <img
+              src="assets/images/galaxy-z-fold.jpg"
+              alt="Samsung Galaxy Z Fold"
+              loading="lazy"
+            >
+
+            <span class="product-status">
+              LIVE
+            </span>
+
+            <button
+              type="button"
+              class="favorite-btn"
+              aria-label="Add Galaxy Z Fold to favorites"
+            >
+              ♡
+            </button>
+
+          </div>
+
+
+          <div class="product-info">
+
+            <span class="product-category">
+              SAMSUNG / FOLDABLE
+            </span>
+
+            <h3>
+              Galaxy Z Fold
+            </h3>
+
+            <p>
+              Premium Samsung foldable smartphone.
+            </p>
+
+            <div class="product-bottom">
+
+              <div>
+
+                <small>
+                  Current Bid
+                </small>
+
+                <strong>
+                  $1,250
+                </strong>
+
+              </div>
+
+              <button
+                type="button"
+                class="view-lot"
+              >
+                View Lot →
+              </button>
+
+            </div>
+
+          </div>
+
+        </article>
+
+
+        <!-- ================= MACBOOK ================= -->
+
+        <article
+          class="product-card"
+          data-category="gadgets"
+          data-brand="macbook"
+          data-type="laptop"
+          data-price="850"
+          data-name="MacBook Air"
+        >
+
+          <div class="product-image">
+
+            <img
+              src="assets/images/macbook-air.jpg"
+              alt="MacBook Air"
+              loading="lazy"
+            >
+
+            <span class="product-status">
+              LIVE
+            </span>
+
+            <button
+              type="button"
+              class="favorite-btn"
+              aria-label="Add MacBook Air to favorites"
+            >
+              ♡
+            </button>
+
+          </div>
+
+
+          <div class="product-info">
+
+            <span class="product-category">
+              APPLE / LAPTOP
+            </span>
+
+            <h3>
+              MacBook Air
+            </h3>
+
+            <p>
+              Lightweight Apple laptop.
+            </p>
+
+            <div class="product-bottom">
+
+              <div>
+
+                <small>
+                  Current Bid
+                </small>
+
+                <strong>
+                  $850
+                </strong>
+
+              </div>
+
+              <button
+                type="button"
+                class="view-lot"
+              >
+                View Lot →
+              </button>
+
+            </div>
+
+          </div>
+
+        </article>
+
+
+        <!-- ================= ROLEX ================= -->
+
+        <article
+          class="product-card"
+          data-category="luxury"
+          data-brand="rolex"
+          data-type="watch"
+          data-price="3200"
+          data-name="Rolex Watch"
+        >
+
+          <div class="product-image">
+
+            <img
+              src="assets/images/rolex-watch.jpg"
+              alt="Rolex luxury watch"
+              loading="lazy"
+            >
+
+            <span class="product-status">
+              LIVE
+            </span>
+
+            <button
+              type="button"
+              class="favorite-btn"
+              aria-label="Add Rolex Watch to favorites"
+            >
+              ♡
+            </button>
+
+          </div>
+
+
+          <div class="product-info">
+
+            <span class="product-category">
+              LUXURY / WATCH
+            </span>
+
+            <h3>
+              Rolex Watch
+            </h3>
+
+            <p>
+              Premium luxury timepiece.
+            </p>
+
+            <div class="product-bottom">
+
+              <div>
+
+                <small>
+                  Current Bid
+                </small>
+
+                <strong>
+                  $3,200
+                </strong>
+
+              </div>
+
+              <button
+                type="button"
+                class="view-lot"
+              >
+                View Lot →
+              </button>
+
+            </div>
+
+          </div>
+
+        </article>
+
+
+        <!-- ================= CARTIER ================= -->
+
+        <article
+          class="product-card"
+          data-category="luxury"
+          data-brand="cartier"
+          data-type="watch"
+          data-price="2800"
+          data-name="Cartier Watch"
+        >
+
+          <div class="product-image">
+
+            <img
+              src="assets/images/cartier-watch.jpg"
+              alt="Cartier luxury watch"
+              loading="lazy"
+            >
+
+            <span class="product-status">
+              LIVE
+            </span>
+
+            <button
+              type="button"
+              class="favorite-btn"
+              aria-label="Add Cartier Watch to favorites"
+            >
+              ♡
+            </button>
+
+          </div>
+
+
+          <div class="product-info">
+
+            <span class="product-category">
+              LUXURY / WATCH
+            </span>
+
+            <h3>
+              Cartier Watch
+            </h3>
+
+            <p>
+              Refined Cartier luxury timepiece.
+            </p>
+
+            <div class="product-bottom">
+
+              <div>
+
+                <small>
+                  Current Bid
+                </small>
+
+                <strong>
+                  $2,800
+                </strong>
+
+              </div>
+
+              <button
+                type="button"
+                class="view-lot"
+              >
+                View Lot →
+              </button>
+
+            </div>
+
+          </div>
+
+        </article>
+
+      </div>
+
+    </section>
+
+
+    <!-- ================= HOW IT WORKS ================= -->
+
+    <section
+      class="process-section"
+      id="how-it-works"
+    >
+
+      <div class="section-heading">
+
+        <div>
+
+          <span class="section-label">
+            03 / HOW IT WORKS
+          </span>
+
+          <h2>
+            Simple.
+            <br>
+            Transparent.
+            <br>
+            Yours.
+          </h2>
+
+        </div>
+
+      </div>
+
+
+      <div class="process-grid">
+
+        <div class="process-card">
+
+          <span>
+            01
+          </span>
+
+          <h3>
+            Discover
+          </h3>
+
+          <p>
+            Browse available auction listings
+            across multiple categories.
+          </p>
+
+        </div>
+
+
+        <div class="process-card">
+
+          <span>
+            02
+          </span>
+
+          <h3>
+            Review
+          </h3>
+
+          <p>
+            Explore the listing details,
+            specifications and auction status.
+          </p>
+
+        </div>
+
+
+        <div class="process-card">
+
+          <span>
+            03
+          </span>
+
+          <h3>
+            Bid
+          </h3>
+
+          <p>
+            Place your bid when the
+            auction system is connected.
+          </p>
+
+        </div>
+
+
+        <div class="process-card">
+
+          <span>
+            04
+          </span>
+
+          <h3>
+            Own
+          </h3>
+
+          <p>
+            Complete the transaction
+            and receive your item.
+          </p>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ================= CTA ================= -->
+
+    <section class="cta-section">
+
+      <div>
+
+        <span class="section-label">
+          AUCTION X
+        </span>
+
+        <h2>
+          Your next find
+          <br>
+          could be here.
+        </h2>
+
+      </div>
+
+
+      <a
+        href="#auctions"
+        class="primary-btn"
+      >
+        Explore Listings →
+      </a>
+
+    </section>
+
+  </main>
+
+
+<!-- ================= FOOTER ================= -->
+
+<footer class="footer">
+
+  <div class="footer-main">
+
+    <div class="footer-brand">
+
+      <a href="#" class="logo">
+        AUCTION <span>X</span>
+      </a>
+
+      <p class="footer-description">
+        A global marketplace for premium technology,
+        luxury goods, vehicles, equipment and unique assets.
+      </p>
+
+      <div class="footer-status">
+        <span class="footer-status-dot"></span>
+        MARKETPLACE ONLINE
+      </div>
+
+    </div>
+
+
+    <div class="footer-links">
+
+      <div class="footer-column">
+
+        <span class="footer-heading">
+          MARKETPLACE
+        </span>
+
+        <a href="#auctions">
+          Auctions
+        </a>
+
+        <a href="#categories">
+          Categories
+        </a>
+
+        <a href="#auctions">
+          Featured Listings
+        </a>
+
+        <a href="#how-it-works">
+          How It Works
+        </a>
+
+      </div>
+
+
+      <div class="footer-column">
+
+        <span class="footer-heading">
+          COMPANY
+        </span>
+
+        <a href="#">
+          About AUCTION X
+        </a>
+
+        <a href="#">
+          Contact
+        </a>
+
+        <a href="#">
+          Sell With Us
+        </a>
+
+        <a href="#">
+          Careers
+        </a>
+
+      </div>
+
+
+      <div class="footer-column">
+
+        <span class="footer-heading">
+          SUPPORT
+        </span>
+
+        <a href="#">
+          Help Center
+        </a>
+
+        <a href="#">
+          Shipping
+        </a>
+
+        <a href="#">
+          Payments
+        </a>
+
+        <a href="#">
+          Returns
+        </a>
+
+      </div>
+
+
+      <div class="footer-column">
+
+        <span class="footer-heading">
+          LEGAL
+        </span>
+
+        <a href="#">
+          Privacy
+        </a>
+
+        <a href="#">
+          Terms
+        </a>
+
+        <a href="#">
+          Buyer Protection
+        </a>
+
+        <a href="#">
+          Cookie Policy
+        </a>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="footer-middle">
+
+    <div>
+
+      <span class="footer-meta-label">
+        OPERATING MARKET
+      </span>
+
+      <strong>
+        UNITED STATES
+      </strong>
+
+    </div>
+
+
+    <div>
+
+      <span class="footer-meta-label">
+        CURRENCY
+      </span>
+
+      <strong>
+        USD / $
+      </strong>
+
+    </div>
+
+
+    <div>
+
+      <span class="footer-meta-label">
+        PLATFORM
+      </span>
+
+      <strong>
+        AUCTION X
+      </strong>
+
+    </div>
+
+
+    <div class="footer-mark">
+      X
+    </div>
+
+  </div>
+
+
+  <div class="footer-bottom">
+
+    <span>
+      © 2026 AUCTION X. ALL RIGHTS RESERVED.
+    </span>
+
+    <span>
+      PREMIUM MARKETPLACE
+    </span>
+
+  </div>
+
+</footer>
+
+
+  <script src="script.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <title>AUCTION X — Order Processing</title>
+
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="confirmation.css" />
+</head>
+
+<body class="confirmation-page">
+
+  <!-- =====================================================
+       NAVBAR
+       ===================================================== -->
+
+  <header class="navbar confirmation-navbar">
+
+    <a href="index.html" class="logo">
+      AUCTION X
+    </a>
+
+    <nav class="nav-links">
+      <a href="index.html#auctions">
+        Auctions
+      </a>
+
+      <a href="index.html#categories">
+        Categories
+      </a>
+
+      <a href="index.html#how-it-works">
+        How It Works
+      </a>
+    </nav>
+
+    <div class="nav-actions">
+
+      <a
+        href="index.html"
+        class="nav-action"
+      >
+        <span class="nav-action-icon">←</span>
+        <span>Marketplace</span>
+      </a>
+
+      <a
+        href="account.html"
+        class="nav-action"
+      >
+        <span class="nav-action-icon">◯</span>
+        <span>Account</span>
+      </a>
+
+    </div>
+
+  </header>
+
+
+  <!-- =====================================================
+       MAIN
+       ===================================================== -->
+
+  <main class="confirmation-main">
+
+
+    <!-- ===================================================
+         ORDER PROCESSING HERO
+         =================================================== -->
+
+    <section class="confirmation-hero">
+
+      <div class="confirmation-mark">
+        <span class="processing-ring"></span>
+      </div>
+
+      <span class="confirmation-eyebrow">
+        AUCTION X / ORDER PROCESSING
+      </span>
+
+      <h1 id="confirmationTitle">
+        Your order<br />
+        is being processed.
+      </h1>
+
+      <p id="confirmationMessage">
+        Your order has been prepared and is ready for payment.
+        Continue with your selected payment method to get
+        your order started.
+      </p>
+
+      <div class="confirmation-reference">
+
+        <span>
+          ORDER REFERENCE
+        </span>
+
+        <strong id="orderReference">
+          AX-000000
+        </strong>
+
+      </div>
+
+    </section>
+
+
+    <!-- ===================================================
+         ORDER LAYOUT
+         =================================================== -->
+
+    <section class="confirmation-layout">
+
+
+      <!-- =================================================
+           ITEMS
+           ================================================= -->
+
+      <div class="confirmation-items-section">
+
+        <div class="confirmation-heading">
+
+          <span>
+            SELECTED ASSETS
+          </span>
+
+          <h2 id="confirmationItemCount">
+            0 Listings
+          </h2>
+
+        </div>
+
+        <div
+          class="confirmation-items"
+          id="confirmationItems"
+        ></div>
+
+      </div>
+
+
+      <!-- =================================================
+           SUMMARY
+           ================================================= -->
+
+      <aside class="confirmation-summary">
+
+        <div class="confirmation-summary-top">
+
+          <span>
+            ORDER SUMMARY
+          </span>
+
+          <span>
+            AUCTION X
+          </span>
+
+        </div>
+
+
+        <div class="confirmation-summary-line">
+
+          <span>
+            Subtotal
+          </span>
+
+          <strong id="confirmationSubtotal">
+            $0
+          </strong>
+
+        </div>
+
+
+        <div class="confirmation-summary-line">
+
+          <span>
+            Shipping
+          </span>
+
+          <strong>
+            Calculated later
+          </strong>
+
+        </div>
+
+
+        <div class="confirmation-summary-line">
+
+          <span>
+            Service
+          </span>
+
+          <strong>
+            $0
+          </strong>
+
+        </div>
+
+
+        <div class="confirmation-total">
+
+          <span>
+            ESTIMATED TOTAL
+          </span>
+
+          <strong id="confirmationTotal">
+            $0
+          </strong>
+
+        </div>
+
+
+        <div class="confirmation-status">
+
+          <span class="status-dot"></span>
+
+          <div>
+
+            <strong id="orderStatus">
+              Awaiting payment
+            </strong>
+
+            <p id="orderStatusMessage">
+              Complete your payment to start
+              processing your order.
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <a
+          href="index.html#auctions"
+          class="confirmation-button"
+        >
+          Continue Browsing
+          <span>→</span>
+        </a>
+
+        <a
+          href="cart.html"
+          class="confirmation-back"
+        >
+          Return to Cart
+        </a>
+
+      </aside>
+
+    </section>
+
+
+    <!-- ===================================================
+         PAYMENT DETAILS
+         =================================================== -->
+
+    <section
+      class="payment-details-section"
+      id="paymentDetails"
+    ></section>
+
+
+    <!-- ===================================================
+         ORDER PROCESS
+         =================================================== -->
+
+    <section class="confirmation-info">
+
+      <div>
+
+        <span>01</span>
+
+        <strong>
+          Order prepared
+        </strong>
+
+        <p>
+          Your selected assets and delivery
+          information have been recorded.
+        </p>
+
+      </div>
+
+
+      <div>
+
+        <span>02</span>
+
+        <strong>
+          Complete payment
+        </strong>
+
+        <p>
+          Complete your selected payment method
+          to start your order.
+        </p>
+
+      </div>
+
+
+      <div>
+
+        <span>03</span>
+
+        <strong>
+          Order processing
+        </strong>
+
+        <p>
+          Once payment is confirmed, your order
+          can move into fulfillment.
+        </p>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+<!-- =====================================================
+     PREMIUM FOOTER
+     ===================================================== -->
+
+<footer class="footer">
+
+  <div class="footer-main">
+
+    <div class="footer-brand">
+
+      <a href="index.html" class="logo">
+        AUCTION <span>X</span>
+      </a>
+
+      <p class="footer-description">
+        A global marketplace for premium technology,
+        luxury goods, vehicles, equipment and unique assets.
+      </p>
+
+      <div class="footer-status">
+        <span class="footer-status-dot"></span>
+        MARKETPLACE ONLINE
+      </div>
+
+    </div>
+
+
+    <div class="footer-links">
+
+      <div class="footer-column">
+
+        <span class="footer-heading">
+          MARKETPLACE
+        </span>
+
+        <a href="index.html#auctions">
+          Auctions
+        </a>
+
+        <a href="index.html#categories">
+          Categories
+        </a>
+
+        <a href="index.html#auctions">
+          Featured Listings
+        </a>
+
+        <a href="index.html#how-it-works">
+          How It Works
+        </a>
+
+      </div>
+
+
+      <div class="footer-column">
+
+        <span class="footer-heading">
+          COMPANY
+        </span>
+
+        <a href="#">
+          About AUCTION X
+        </a>
+
+        <a href="#">
+          Contact
+        </a>
+
+        <a href="#">
+          Sell With Us
+        </a>
+
+        <a href="#">
+          Careers
+        </a>
+
+      </div>
+
+
+      <div class="footer-column">
+
+        <span class="footer-heading">
+          SUPPORT
+        </span>
+
+        <a href="#">
+          Help Center
+        </a>
+
+        <a href="#">
+          Shipping
+        </a>
+
+        <a href="#">
+          Payments
+        </a>
+
+        <a href="#">
+          Returns
+        </a>
+
+      </div>
+
+
+      <div class="footer-column">
+
+        <span class="footer-heading">
+          LEGAL
+        </span>
+
+        <a href="#">
+          Privacy
+        </a>
+
+        <a href="#">
+          Terms
+        </a>
+
+        <a href="#">
+          Buyer Protection
+        </a>
+
+        <a href="#">
+          Cookie Policy
+        </a>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="footer-middle">
+
+    <div>
+
+      <span class="footer-meta-label">
+        OPERATING MARKET
+      </span>
+
+      <strong>
+        UNITED STATES
+      </strong>
+
+    </div>
+
+
+    <div>
+
+      <span class="footer-meta-label">
+        CURRENCY
+      </span>
+
+      <strong>
+        USD / $
+      </strong>
+
+    </div>
+
+
+    <div>
+
+      <span class="footer-meta-label">
+        PLATFORM
+      </span>
+
+      <strong>
+        AUCTION X
+      </strong>
+
+    </div>
+
+
+    <div class="footer-mark">
+      X
+    </div>
+
+  </div>
+
+
+  <div class="footer-bottom">
+
+    <span>
+      © 2026 AUCTION X. ALL RIGHTS RESERVED.
+    </span>
+
+    <span>
+      PREMIUM MARKETPLACE
+    </span>
+
+  </div>
+
+</footer>
+
+
+  <script src="confirmation.js"></script>
+
+</body>
+</html>

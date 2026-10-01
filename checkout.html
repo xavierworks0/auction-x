@@ -1,0 +1,1028 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <meta
+    name="description"
+    content="Complete your AUCTION X marketplace order securely."
+  />
+
+  <title>AUCTION X — Checkout</title>
+
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="checkout.css" />
+</head>
+
+<body class="checkout-page">
+
+  <!-- ==================================================
+       NAVBAR
+       ================================================== -->
+
+  <header class="navbar checkout-navbar">
+
+    <a
+      href="index.html"
+      class="logo"
+      aria-label="AUCTION X home"
+    >
+      AUCTION X
+    </a>
+
+    <nav
+      class="nav-links"
+      aria-label="Primary navigation"
+    >
+
+      <a href="index.html#auctions">
+        Auctions
+      </a>
+
+      <a href="index.html#categories">
+        Categories
+      </a>
+
+      <a href="index.html#how-it-works">
+        How It Works
+      </a>
+
+    </nav>
+
+    <div class="nav-actions">
+
+      <a
+        href="cart.html"
+        class="nav-action"
+        aria-label="Return to cart"
+      >
+        <span
+          class="nav-action-icon"
+          aria-hidden="true"
+        >
+          ←
+        </span>
+
+        <span>
+          Cart
+        </span>
+      </a>
+
+      <a
+        href="account.html"
+        class="nav-action"
+        aria-label="Open account"
+      >
+        <span
+          class="nav-action-icon"
+          aria-hidden="true"
+        >
+          ◯
+        </span>
+
+        <span>
+          Account
+        </span>
+      </a>
+
+    </div>
+
+  </header>
+
+
+  <!-- ==================================================
+       MAIN
+       ================================================== -->
+
+  <main class="checkout-main">
+
+    <!-- ==================================================
+         INTRO
+         ================================================== -->
+
+    <section class="checkout-intro">
+
+      <div>
+
+        <span class="checkout-eyebrow">
+          AUCTION X / CHECKOUT
+        </span>
+
+        <h1>
+          Complete<br />
+          your order.
+        </h1>
+
+        <p>
+          Review your selected assets and provide the
+          information required to continue.
+        </p>
+
+      </div>
+
+      <div
+        class="checkout-progress"
+        aria-label="Checkout progress"
+      >
+
+        <span class="active">
+          01 REVIEW
+        </span>
+
+        <span class="active">
+          02 DETAILS
+        </span>
+
+        <span>
+          03 PAYMENT
+        </span>
+
+      </div>
+
+    </section>
+
+
+    <!-- ==================================================
+         CHECKOUT LAYOUT
+         ================================================== -->
+
+    <section class="checkout-layout">
+
+
+      <!-- ==================================================
+           CUSTOMER DETAILS
+           ================================================== -->
+
+      <div class="checkout-details">
+
+        <div class="checkout-section-head">
+
+          <span>
+            01 / DETAILS
+          </span>
+
+          <h2>
+            Delivery information
+          </h2>
+
+        </div>
+
+
+        <!-- ==================================================
+             CUSTOMER FORM
+             ================================================== -->
+
+        <form
+          class="checkout-form"
+          id="checkoutForm"
+          novalidate
+        >
+
+          <!-- NAME -->
+
+          <div class="form-row">
+
+            <label for="fullName">
+              FULL NAME
+            </label>
+
+            <input
+              type="text"
+              id="fullName"
+              name="fullName"
+              placeholder="Your full name"
+              autocomplete="name"
+              required
+            />
+
+          </div>
+
+
+          <!-- EMAIL -->
+
+          <div class="form-row">
+
+            <label for="email">
+              EMAIL ADDRESS
+            </label>
+
+            <input
+              type="email"
+              id="email"
+              name="email"
+              placeholder="you@example.com"
+              autocomplete="email"
+              required
+            />
+
+          </div>
+
+
+          <!-- PHONE -->
+
+          <div class="form-row">
+
+            <label for="phone">
+              PHONE NUMBER
+            </label>
+
+            <input
+              type="tel"
+              id="phone"
+              name="phone"
+              placeholder="+1 000 000 0000"
+              autocomplete="tel"
+              required
+            />
+
+          </div>
+
+
+          <!-- COUNTRY -->
+
+          <div class="form-row">
+
+            <label for="country">
+              COUNTRY
+            </label>
+
+            <select
+              id="country"
+              name="country"
+              autocomplete="country-name"
+              required
+            >
+
+              <option value="">
+                Select country
+              </option>
+
+              <option value="US">
+                United States
+              </option>
+
+              <option value="CA">
+                Canada
+              </option>
+
+              <option value="GB">
+                United Kingdom
+              </option>
+
+              <option value="NG">
+                Nigeria
+              </option>
+
+              <option value="GH">
+                Ghana
+              </option>
+
+              <option value="AU">
+                Australia
+              </option>
+
+              <option value="DE">
+                Germany
+              </option>
+
+              <option value="FR">
+                France
+              </option>
+
+              <option value="OTHER">
+                Other
+              </option>
+
+            </select>
+
+          </div>
+
+
+          <!-- DELIVERY ADDRESS -->
+
+          <div class="form-row">
+
+            <label for="address">
+              DELIVERY ADDRESS
+            </label>
+
+            <textarea
+              id="address"
+              name="address"
+              rows="4"
+              placeholder="Street address, city, state / region"
+              autocomplete="street-address"
+              required
+            ></textarea>
+
+          </div>
+
+
+          <!-- POSTAL + STATE -->
+
+          <div class="form-split">
+
+            <div class="form-row">
+
+              <label for="postalCode">
+                POSTAL CODE
+              </label>
+
+              <input
+                type="text"
+                id="postalCode"
+                name="postalCode"
+                placeholder="Postal code"
+                autocomplete="postal-code"
+                required
+              />
+
+            </div>
+
+
+            <div class="form-row">
+
+              <label for="state">
+                STATE / REGION
+              </label>
+
+              <input
+                type="text"
+                id="state"
+                name="state"
+                placeholder="State / Region"
+                autocomplete="address-level1"
+                required
+              />
+
+            </div>
+
+          </div>
+
+
+          <!-- SHIPPING NOTE -->
+
+          <div class="checkout-note">
+
+            <span aria-hidden="true">
+              i
+            </span>
+
+            <p>
+              Shipping availability and final delivery
+              charges will be confirmed before payment.
+            </p>
+
+          </div>
+
+
+          <!-- ==================================================
+               PAYMENT METHOD
+               ================================================== -->
+
+          <div class="payment-method-section">
+
+            <div class="payment-method-head">
+
+              <span>
+                02 / PAYMENT
+              </span>
+
+              <h2>
+                Complete your payment.
+              </h2>
+
+              <p>
+                Card payments are temporarily unavailable.
+                Please use cryptocurrency to complete your
+                AUCTION X order.
+              </p>
+
+            </div>
+
+
+            <!-- ==================================================
+                 PAYMENT OPTIONS
+                 ================================================== -->
+
+            <div
+              class="payment-method-options"
+              role="group"
+              aria-label="Payment methods"
+            >
+
+
+              <!-- ==================================================
+                   CARD — TEMPORARILY UNAVAILABLE
+                   ================================================== -->
+
+              <button
+                type="button"
+                class="payment-method-card payment-method-unavailable"
+                id="cardPaymentOption"
+                data-payment-method="card"
+                disabled
+                aria-disabled="true"
+                aria-label="Card payments temporarily unavailable"
+              >
+
+                <div
+                  class="payment-method-icon"
+                  aria-hidden="true"
+                >
+                  CARD
+                </div>
+
+                <div class="payment-method-copy">
+
+                  <strong>
+                    Card payments unavailable
+                  </strong>
+
+                  <span>
+                    Please use cryptocurrency to complete your order
+                  </span>
+
+                </div>
+
+                <span class="payment-method-status">
+                  TEMPORARILY UNAVAILABLE
+                </span>
+
+              </button>
+
+
+              <!-- ==================================================
+                   CRYPTO — ACTIVE
+                   ================================================== -->
+
+              <button
+                type="button"
+                class="payment-method-card active"
+                id="cryptoPaymentOption"
+                data-payment-method="crypto"
+                aria-pressed="true"
+                aria-label="Pay with cryptocurrency"
+              >
+
+                <div
+                  class="payment-method-icon crypto-icon"
+                  aria-hidden="true"
+                >
+                  CRYPTO
+                </div>
+
+                <div class="payment-method-copy">
+
+                  <strong>
+                    Pay with Crypto
+                  </strong>
+
+                  <span>
+                    BTC, SOL, USDT and USDC
+                  </span>
+
+                </div>
+
+                <span
+                  class="payment-method-arrow"
+                  aria-hidden="true"
+                >
+                  →
+                </span>
+
+              </button>
+
+            </div>
+
+
+            <!-- ==================================================
+                 CRYPTOCURRENCY SELECTOR
+                 ================================================== -->
+
+            <div
+              class="crypto-options"
+              id="cryptoOptions"
+            >
+
+              <div class="crypto-options-head">
+
+                <span>
+                  SELECT CRYPTOCURRENCY
+                </span>
+
+                <p>
+                  Choose the cryptocurrency you want to use
+                  for this order.
+                </p>
+
+              </div>
+
+
+              <div
+                class="crypto-currency-grid"
+                role="group"
+                aria-label="Cryptocurrency options"
+              >
+
+
+                <!-- BTC -->
+
+                <button
+                  type="button"
+                  class="crypto-currency active"
+                  data-crypto="btc"
+                  aria-pressed="true"
+                >
+
+                  <strong>
+                    BTC
+                  </strong>
+
+                  <span>
+                    Bitcoin
+                  </span>
+
+                </button>
+
+
+                <!-- SOL -->
+
+                <button
+                  type="button"
+                  class="crypto-currency"
+                  data-crypto="sol"
+                  aria-pressed="false"
+                >
+
+                  <strong>
+                    SOL
+                  </strong>
+
+                  <span>
+                    Solana
+                  </span>
+
+                </button>
+
+
+                <!-- USDT -->
+
+                <button
+                  type="button"
+                  class="crypto-currency"
+                  data-crypto="usdt"
+                  aria-pressed="false"
+                >
+
+                  <strong>
+                    USDT
+                  </strong>
+
+                  <span>
+                    Ethereum
+                  </span>
+
+                </button>
+
+
+                <!-- USDC -->
+
+                <button
+                  type="button"
+                  class="crypto-currency"
+                  data-crypto="usdc"
+                  aria-pressed="false"
+                >
+
+                  <strong>
+                    USDC
+                  </strong>
+
+                  <span>
+                    Ethereum
+                  </span>
+
+                </button>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </form>
+
+      </div>
+
+
+      <!-- ==================================================
+           ORDER SUMMARY
+           ================================================== -->
+
+      <aside
+        class="checkout-summary"
+        aria-label="Order summary"
+      >
+
+        <div class="checkout-summary-top">
+
+          <span>
+            03 / ORDER
+          </span>
+
+          <span>
+            AUCTION X
+          </span>
+
+        </div>
+
+
+        <!-- DYNAMIC CART ITEMS -->
+
+        <div
+          class="checkout-items"
+          id="checkoutItems"
+        ></div>
+
+
+        <!-- SUMMARY LINES -->
+
+        <div class="checkout-summary-lines">
+
+          <div>
+
+            <span>
+              Subtotal
+            </span>
+
+            <strong id="checkoutSubtotal">
+              $0
+            </strong>
+
+          </div>
+
+
+          <div>
+
+            <span>
+              Shipping
+            </span>
+
+            <strong>
+              Calculated later
+            </strong>
+
+          </div>
+
+
+          <div>
+
+            <span>
+              Service
+            </span>
+
+            <strong>
+              $0
+            </strong>
+
+          </div>
+
+        </div>
+
+
+        <!-- TOTAL -->
+
+        <div class="checkout-total">
+
+          <span>
+            ESTIMATED TOTAL
+          </span>
+
+          <strong id="checkoutTotal">
+            $0
+          </strong>
+
+        </div>
+
+
+        <!-- CONTINUE -->
+
+        <button
+          type="submit"
+          form="checkoutForm"
+          class="place-order-button"
+          id="placeOrderButton"
+        >
+
+          <span>
+            Continue to Payment
+          </span>
+
+          <span aria-hidden="true">
+            →
+          </span>
+
+        </button>
+
+
+        <!-- RETURN TO CART -->
+
+        <a
+          href="cart.html"
+          class="back-cart"
+        >
+          ← Return to Cart
+        </a>
+
+
+        <!-- SECURITY -->
+
+        <div class="checkout-security">
+
+          <span>
+            SECURE ORDER FLOW
+          </span>
+
+          <span>
+            AUCTION X
+          </span>
+
+        </div>
+
+      </aside>
+
+    </section>
+
+
+    <!-- ==================================================
+         CHECKOUT INFO
+         ================================================== -->
+
+    <section class="checkout-info">
+
+      <div>
+
+        <span>
+          01
+        </span>
+
+        <strong>
+          Review
+        </strong>
+
+        <p>
+          Confirm the assets and quantities selected.
+        </p>
+
+      </div>
+
+
+      <div>
+
+        <span>
+          02
+        </span>
+
+        <strong>
+          Details
+        </strong>
+
+        <p>
+          Provide accurate delivery information.
+        </p>
+
+      </div>
+
+
+      <div>
+
+        <span>
+          03
+        </span>
+
+        <strong>
+          Payment
+        </strong>
+
+        <p>
+          Complete your order using cryptocurrency.
+        </p>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <!-- ==================================================
+     PREMIUM FOOTER
+     ================================================== -->
+
+<footer class="footer">
+
+  <div class="footer-main">
+
+    <div class="footer-brand">
+
+      <a href="index.html" class="logo">
+        AUCTION <span>X</span>
+      </a>
+
+      <p class="footer-description">
+        A global marketplace for premium technology,
+        luxury goods, vehicles, equipment and unique assets.
+      </p>
+
+      <div class="footer-status">
+        <span class="footer-status-dot"></span>
+        MARKETPLACE ONLINE
+      </div>
+
+    </div>
+
+
+    <div class="footer-links">
+
+      <div class="footer-column">
+
+        <span class="footer-heading">
+          MARKETPLACE
+        </span>
+
+        <a href="index.html#auctions">
+          Auctions
+        </a>
+
+        <a href="index.html#categories">
+          Categories
+        </a>
+
+        <a href="index.html#auctions">
+          Featured Listings
+        </a>
+
+        <a href="index.html#how-it-works">
+          How It Works
+        </a>
+
+      </div>
+
+
+      <div class="footer-column">
+
+        <span class="footer-heading">
+          COMPANY
+        </span>
+
+        <a href="#">
+          About AUCTION X
+        </a>
+
+        <a href="#">
+          Contact
+        </a>
+
+        <a href="#">
+          Sell With Us
+        </a>
+
+        <a href="#">
+          Careers
+        </a>
+
+      </div>
+
+
+      <div class="footer-column">
+
+        <span class="footer-heading">
+          SUPPORT
+        </span>
+
+        <a href="#">
+          Help Center
+        </a>
+
+        <a href="#">
+          Shipping
+        </a>
+
+        <a href="#">
+          Payments
+        </a>
+
+        <a href="#">
+          Returns
+        </a>
+
+      </div>
+
+
+      <div class="footer-column">
+
+        <span class="footer-heading">
+          LEGAL
+        </span>
+
+        <a href="#">
+          Privacy
+        </a>
+
+        <a href="#">
+          Terms
+        </a>
+
+        <a href="#">
+          Buyer Protection
+        </a>
+
+        <a href="#">
+          Cookie Policy
+        </a>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="footer-middle">
+
+    <div>
+
+      <span class="footer-meta-label">
+        OPERATING MARKET
+      </span>
+
+      <strong>
+        UNITED STATES
+      </strong>
+
+    </div>
+
+
+    <div>
+
+      <span class="footer-meta-label">
+        CURRENCY
+      </span>
+
+      <strong>
+        USD / $
+      </strong>
+
+    </div>
+
+
+    <div>
+
+      <span class="footer-meta-label">
+        PLATFORM
+      </span>
+
+      <strong>
+        AUCTION X
+      </strong>
+
+    </div>
+
+
+    <div class="footer-mark">
+      X
+    </div>
+
+  </div>
+
+
+  <div class="footer-bottom">
+
+    <span>
+      © 2026 AUCTION X. ALL RIGHTS RESERVED.
+    </span>
+
+    <span>
+      PREMIUM MARKETPLACE
+    </span>
+
+  </div>
+
+</footer>
+
+  <!-- ==================================================
+       CHECKOUT JAVASCRIPT
+       ================================================== -->
+
+  <script src="checkout.js"></script>
+
+</body>
+</html>
+

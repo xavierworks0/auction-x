@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>AUCTION X — Account</title>
+
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="account.css" />
+</head>
+
+<body>
+
+  <!-- PREMIUM NAVBAR -->
+<header class="navbar account-navbar">
+
+  <div class="navbar-inner">
+
+    <a href="index.html" class="logo">
+      AUCTION <span>X</span>
+    </a>
+
+    <nav class="nav-links">
+      <a href="index.html">Marketplace</a>
+      <a href="index.html#categories">Categories</a>
+      <a href="index.html#auctions">Auctions</a>
+      <a href="index.html#how-it-works">How It Works</a>
+    </nav>
+
+    <div class="account-nav-controls">
+
+      <a href="account.html" class="account-nav-item account-nav-current">
+        <span class="account-indicator"></span>
+        Account
+      </a>
+
+      <span class="account-nav-divider"></span>
+
+      <a href="cart.html" class="account-nav-item cart-nav-item">
+        Cart
+        <span class="cart-count" id="cartCount">0</span>
+      </a>
+
+    </div>
+
+  </div>
+
+</header>
+
+
+  <!-- ACCOUNT HERO -->
+  <main class="account-page">
+
+    <section class="account-hero">
+
+      <div>
+        <span class="eyebrow">AUCTION X / ACCOUNT</span>
+
+        <h1>
+          Your marketplace.
+          <span>Your activity.</span>
+        </h1>
+
+        <p>
+          Manage your orders, watchlist, saved items and marketplace activity
+          from one place.
+        </p>
+      </div>
+
+      <div class="account-status">
+        <span class="status-dot"></span>
+        ACCOUNT ACTIVE
+      </div>
+
+    </section>
+
+
+    <!-- OVERVIEW -->
+    <section class="account-overview">
+
+      <div class="account-card">
+
+        <span class="account-card-label">
+          ORDERS
+        </span>
+
+        <strong id="orderCount">
+          0
+        </strong>
+
+        <small>
+          Total orders
+        </small>
+
+      </div>
+
+
+      <div class="account-card">
+
+        <span class="account-card-label">
+          WATCHLIST
+        </span>
+
+        <strong id="watchlistCount">
+          0
+        </strong>
+
+        <small>
+          Saved listings
+        </small>
+
+      </div>
+
+
+      <div class="account-card">
+
+        <span class="account-card-label">
+          CART
+        </span>
+
+        <strong id="accountCartCount">
+          0
+        </strong>
+
+        <small>
+          Items waiting
+        </small>
+
+      </div>
+
+
+      <div class="account-card account-card-dark">
+
+        <span class="account-card-label">
+          MARKET
+        </span>
+
+        <strong>
+          USD
+        </strong>
+
+        <small>
+          United States
+        </small>
+
+      </div>
+
+    </section>
+
+
+    <!-- MAIN GRID -->
+    <section class="account-grid">
+
+
+      <!-- PROFILE -->
+      <article class="account-panel profile-panel">
+
+        <div class="panel-heading">
+
+          <div>
+            <span class="panel-kicker">
+              PROFILE
+            </span>
+
+            <h2>
+              Account information
+            </h2>
+          </div>
+
+          <span class="panel-number">
+            01
+          </span>
+
+        </div>
+
+
+        <div class="profile-content">
+
+          <div class="profile-avatar">
+            AX
+          </div>
+
+          <div class="profile-info">
+
+            <strong>
+              AUCTION X CUSTOMER
+            </strong>
+
+            <span>
+              Marketplace member
+            </span>
+
+            <span>
+              United States
+            </span>
+
+          </div>
+
+        </div>
+
+
+        <button class="account-outline-button" type="button">
+          Manage Profile
+          <span>→</span>
+        </button>
+
+      </article>
+
+
+     <!-- ORDERS -->
+<article class="account-panel orders-panel">
+
+  <div class="panel-heading">
+
+    <div>
+      <span class="panel-kicker">
+        ORDERS
+      </span>
+
+      <h2>
+        Recent purchases
+      </h2>
+    </div>
+
+    <span class="panel-number">
+      02
+    </span>
+
+  </div>
+
+  <div class="empty-panel" id="ordersPanel">
+
+    <div class="empty-icon">
+      01
+    </div>
+
+    <strong>
+      No orders yet
+    </strong>
+
+    <p>
+      Your completed and active orders will appear here.
+    </p>
+
+    <a href="index.html#auctions" class="account-link">
+      Explore marketplace →
+    </a>
+
+  </div>
+
+</article>
+
+
+      <!-- WATCHLIST -->
+      <article class="account-panel">
+
+        <div class="panel-heading">
+
+          <div>
+            <span class="panel-kicker">
+              WATCHLIST
+            </span>
+
+            <h2>
+              Saved listings
+            </h2>
+          </div>
+
+          <span class="panel-number">
+            03
+          </span>
+
+        </div>
+
+
+        <div class="empty-panel" id="watchlistPanel">
+
+          <div class="empty-icon">
+            ♡
+          </div>
+
+          <strong>
+            Nothing saved yet
+          </strong>
+
+          <p>
+            Save listings you're interested in and return to them later.
+          </p>
+
+          <a href="index.html#auctions" class="account-link">
+            Browse listings →
+          </a>
+
+        </div>
+
+      </article>
+
+
+      <!-- CART -->
+      <article class="account-panel">
+
+        <div class="panel-heading">
+
+          <div>
+            <span class="panel-kicker">
+              CART
+            </span>
+
+            <h2>
+              Items waiting
+            </h2>
+          </div>
+
+          <span class="panel-number">
+            04
+          </span>
+
+        </div>
+
+
+        <div class="empty-panel" id="cartPanel">
+
+          <div class="empty-icon">
+            +
+          </div>
+
+          <strong>
+            Your cart is empty
+          </strong>
+
+          <p>
+            Add products from the marketplace and they'll appear here.
+          </p>
+
+          <a href="cart.html" class="account-link">
+            Open cart →
+          </a>
+
+        </div>
+
+      </article>
+
+
+    </section>
+
+
+    <!-- ACCOUNT FOOTER CTA -->
+    <section class="account-cta">
+
+      <div>
+
+        <span class="eyebrow">
+          AUCTION X / MARKETPLACE
+        </span>
+
+        <h2>
+          Find your next asset.
+        </h2>
+
+        <p>
+          Explore premium technology, luxury goods and unique listings.
+        </p>
+
+      </div>
+
+      <a href="index.html#auctions" class="account-cta-button">
+        Explore Marketplace
+        <span>→</span>
+      </a>
+
+    </section>
+
+  </main>
+
+
+  <!-- FOOTER -->
+  <footer class="footer">
+
+    <div class="footer-main">
+
+      <div class="footer-brand">
+
+        <a href="index.html" class="logo">
+          AUCTION <span>X</span>
+        </a>
+
+        <p class="footer-description">
+          A global marketplace for premium technology,
+          luxury goods, vehicles, equipment and unique assets.
+        </p>
+
+        <div class="footer-status">
+          <span class="footer-status-dot"></span>
+          MARKETPLACE ONLINE
+        </div>
+
+      </div>
+
+
+      <div class="footer-links">
+
+        <div class="footer-column">
+          <span class="footer-heading">MARKETPLACE</span>
+          <a href="index.html#auctions">Auctions</a>
+          <a href="index.html#categories">Categories</a>
+          <a href="index.html#auctions">Featured Listings</a>
+          <a href="index.html#how-it-works">How It Works</a>
+        </div>
+
+        <div class="footer-column">
+          <span class="footer-heading">COMPANY</span>
+          <a href="#">About AUCTION X</a>
+          <a href="#">Contact</a>
+          <a href="#">Sell With Us</a>
+          <a href="#">Careers</a>
+        </div>
+
+        <div class="footer-column">
+          <span class="footer-heading">SUPPORT</span>
+          <a href="#">Help Center</a>
+          <a href="#">Shipping</a>
+          <a href="#">Payments</a>
+          <a href="#">Returns</a>
+        </div>
+
+        <div class="footer-column">
+          <span class="footer-heading">LEGAL</span>
+          <a href="#">Privacy</a>
+          <a href="#">Terms</a>
+          <a href="#">Buyer Protection</a>
+          <a href="#">Cookie Policy</a>
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="footer-middle">
+
+      <div>
+        <span class="footer-meta-label">OPERATING MARKET</span>
+        <strong>UNITED STATES</strong>
+      </div>
+
+      <div>
+        <span class="footer-meta-label">CURRENCY</span>
+        <strong>USD / $</strong>
+      </div>
+
+      <div>
+        <span class="footer-meta-label">PLATFORM</span>
+        <strong>AUCTION X</strong>
+      </div>
+
+      <div class="footer-mark">
+        X
+      </div>
+
+    </div>
+
+
+    <div class="footer-bottom">
+      <span>© 2026 AUCTION X. ALL RIGHTS RESERVED.</span>
+      <span>PREMIUM MARKETPLACE</span>
+    </div>
+
+  </footer>
+
+
+  <script src="account.js"></script>
+
+</body>
+</html>
