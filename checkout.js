@@ -4,7 +4,7 @@
 
 const CART_KEY = "auctionXCart";
 const ORDER_KEY = "auctionXOrder";
-const API_URL = "http://localhost:4242";
+const API_URL = "https://auction-x-api.onrender.com";
 
 const currencyFormatter = new Intl.NumberFormat("en-US", {
   style: "currency",
