@@ -316,7 +316,7 @@
               id="address"
               name="address"
               rows="4"
-              placeholder="Street address, city, state / region"
+             placeholder="Street address"
               autocomplete="street-address"
               required
             ></textarea>
@@ -324,47 +324,66 @@
           </div>
 
 
-          <!-- POSTAL + STATE -->
+         <!-- CITY -->
 
-          <div class="form-split">
+<div class="form-row">
 
-            <div class="form-row">
+  <label for="city">
+    CITY
+  </label>
 
-              <label for="postalCode">
-                POSTAL CODE
-              </label>
+  <input
+    type="text"
+    id="city"
+    name="city"
+    placeholder="City"
+    autocomplete="address-level2"
+    required
+  />
 
-              <input
-                type="text"
-                id="postalCode"
-                name="postalCode"
-                placeholder="Postal code"
-                autocomplete="postal-code"
-                required
-              />
-
-            </div>
+</div>
 
 
-            <div class="form-row">
+<!-- POSTAL + STATE -->
 
-              <label for="state">
-                STATE / REGION
-              </label>
+<div class="form-split">
 
-              <input
-                type="text"
-                id="state"
-                name="state"
-                placeholder="State / Region"
-                autocomplete="address-level1"
-                required
-              />
+  <div class="form-row">
 
-            </div>
+    <label for="postalCode">
+      POSTAL CODE
+    </label>
 
-          </div>
+    <input
+      type="text"
+      id="postalCode"
+      name="postalCode"
+      placeholder="Postal code"
+      autocomplete="postal-code"
+      required
+    />
 
+  </div>
+
+
+  <div class="form-row">
+
+    <label for="state">
+      STATE / REGION
+    </label>
+
+    <input
+      type="text"
+      id="state"
+      name="state"
+      placeholder="State / Region"
+      autocomplete="address-level1"
+      required
+    />
+
+  </div>
+
+</div>
 
           <!-- SHIPPING NOTE -->
 

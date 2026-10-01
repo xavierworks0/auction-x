@@ -1,5 +1,5 @@
 /* =========================================================
-   AUCTION X — SECURE BACKEND
+   AUCTION X — SECURE POSTGRESQL BACKEND
    ========================================================= */
 
 require("dotenv").config();
@@ -11,7 +11,7 @@ const rateLimit = require("express-rate-limit");
 const axios = require("axios");
 const crypto = require("crypto");
 const { Resend } = require("resend");
-
+const { Pool } = require("pg");
 
 /* =========================================================
    APP
@@ -19,16 +19,381 @@ const { Resend } = require("resend");
 
 const app = express();
 
-const PORT =
-  Number(process.env.PORT) || 4242;
+const PORT = Number(process.env.PORT) || 4242;
 
 const FRONTEND_ORIGIN =
   process.env.AUCTION_X_ORIGIN ||
   "http://localhost:5175";
 
+/* =========================================================
+   DATABASE
+   ========================================================= */
+
+if (!process.env.DATABASE_URL) {
+  console.error(
+    "DATABASE_URL is missing from .env."
+  );
+
+  process.exit(1);
+}
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false
+  },
+  max: 10,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 10000
+});
+
+pool.on("error", (error) => {
+  console.error(
+    "Unexpected PostgreSQL pool error:",
+    error.message
+  );
+});
 
 /* =========================================================
-   SERVICES
+   DATABASE INITIALIZATION
+   ========================================================= */
+
+async function initializeDatabase() {
+  const client = await pool.connect();
+
+  try {
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS orders (
+        id SERIAL PRIMARY KEY,
+
+        reference VARCHAR(100) UNIQUE NOT NULL,
+
+        status VARCHAR(50) NOT NULL DEFAULT 'pending',
+
+        payment_method VARCHAR(30) NOT NULL,
+
+        crypto_currency VARCHAR(30),
+
+        customer JSONB NOT NULL,
+
+        items JSONB NOT NULL,
+
+        subtotal NUMERIC(12, 2) NOT NULL,
+
+        total NUMERIC(12, 2) NOT NULL,
+
+        currency VARCHAR(10) NOT NULL DEFAULT 'USD',
+
+        payment_id VARCHAR(150),
+
+        payment_status VARCHAR(100),
+
+        pay_address TEXT,
+
+        pay_amount NUMERIC(30, 18),
+
+        pay_currency VARCHAR(50),
+
+        price_amount NUMERIC(30, 18),
+
+        price_currency VARCHAR(50),
+
+        expiration_estimate_date TIMESTAMPTZ,
+
+        paid_at TIMESTAMPTZ,
+
+        payment_creation_in_progress BOOLEAN NOT NULL DEFAULT FALSE,
+
+        notification_sent BOOLEAN NOT NULL DEFAULT FALSE,
+
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+    `);
+
+    await client.query(`
+      CREATE INDEX IF NOT EXISTS idx_orders_payment_id
+      ON orders(payment_id);
+    `);
+
+    await client.query(`
+      CREATE INDEX IF NOT EXISTS idx_orders_status
+      ON orders(status);
+    `);
+
+    await client.query(`
+      CREATE INDEX IF NOT EXISTS idx_orders_created_at
+      ON orders(created_at DESC);
+    `);
+
+    console.log("PostgreSQL: CONNECTED");
+    console.log("Database: READY");
+  } finally {
+    client.release();
+  }
+}
+
+/* =========================================================
+   DATABASE HELPERS
+   ========================================================= */
+
+const normalizeDbOrder = (row) => {
+  if (!row) {
+    return null;
+  }
+
+  return {
+    reference: row.reference,
+
+    status: row.status,
+
+    payment_method:
+      row.payment_method,
+
+    crypto_currency:
+      row.crypto_currency || null,
+
+    customer:
+      row.customer || {},
+
+    items:
+      row.items || [],
+
+    subtotal:
+      Number(row.subtotal),
+
+    total:
+      Number(row.total),
+
+    currency:
+      row.currency || "USD",
+
+    payment_id:
+      row.payment_id || null,
+
+    payment_status:
+      row.payment_status || null,
+
+    pay_address:
+      row.pay_address || null,
+
+    pay_amount:
+      row.pay_amount !== null &&
+      row.pay_amount !== undefined
+        ? Number(row.pay_amount)
+        : null,
+
+    pay_currency:
+      row.pay_currency || null,
+
+    price_amount:
+      row.price_amount !== null &&
+      row.price_amount !== undefined
+        ? Number(row.price_amount)
+        : null,
+
+    price_currency:
+      row.price_currency || null,
+
+    expiration_estimate_date:
+      row.expiration_estimate_date
+        ? new Date(
+            row.expiration_estimate_date
+          ).toISOString()
+        : null,
+
+    paid_at:
+      row.paid_at
+        ? new Date(row.paid_at).toISOString()
+        : null,
+
+    payment_creation_in_progress:
+      Boolean(
+        row.payment_creation_in_progress
+      ),
+
+    notification_sent:
+      Boolean(row.notification_sent),
+
+    created_at:
+      row.created_at
+        ? new Date(row.created_at).toISOString()
+        : null
+  };
+};
+
+const getOrderByReference = async (
+  reference
+) => {
+  const result = await pool.query(
+    `
+      SELECT *
+      FROM orders
+      WHERE reference = $1
+      LIMIT 1
+    `,
+    [reference]
+  );
+
+  return normalizeDbOrder(
+    result.rows[0]
+  );
+};
+
+const getOrderByPaymentId = async (
+  paymentId
+) => {
+  const result = await pool.query(
+    `
+      SELECT *
+      FROM orders
+      WHERE payment_id = $1
+      LIMIT 1
+    `,
+    [String(paymentId)]
+  );
+
+  return normalizeDbOrder(
+    result.rows[0]
+  );
+};
+
+const insertOrder = async (
+  order
+) => {
+  await pool.query(
+    `
+      INSERT INTO orders (
+        reference,
+        status,
+        payment_method,
+        crypto_currency,
+        customer,
+        items,
+        subtotal,
+        total,
+        currency,
+        payment_id,
+        payment_status,
+        pay_address,
+        pay_amount,
+        pay_currency,
+        price_amount,
+        price_currency,
+        expiration_estimate_date,
+        paid_at,
+        payment_creation_in_progress,
+        notification_sent,
+        created_at,
+        updated_at
+      )
+      VALUES (
+        $1,
+        $2,
+        $3,
+        $4,
+        $5::jsonb,
+        $6::jsonb,
+        $7,
+        $8,
+        $9,
+        $10,
+        $11,
+        $12,
+        $13,
+        $14,
+        $15,
+        $16,
+        $17,
+        $18,
+        $19,
+        $20,
+        NOW(),
+        NOW()
+      )
+    `,
+    [
+      order.reference,
+      order.status,
+      order.payment_method,
+      order.crypto_currency,
+      JSON.stringify(order.customer),
+      JSON.stringify(order.items),
+      order.subtotal,
+      order.total,
+      order.currency,
+      order.payment_id,
+      order.payment_status,
+      order.pay_address,
+      order.pay_amount,
+      order.pay_currency,
+      order.price_amount,
+      order.price_currency,
+      order.expiration_estimate_date,
+      order.paid_at,
+      order.payment_creation_in_progress,
+      order.notification_sent
+    ]
+  );
+};
+
+const updateOrder = async (
+  order
+) => {
+  await pool.query(
+    `
+      UPDATE orders
+      SET
+        status = $2,
+        payment_method = $3,
+        crypto_currency = $4,
+        customer = $5::jsonb,
+        items = $6::jsonb,
+        subtotal = $7,
+        total = $8,
+        currency = $9,
+        payment_id = $10,
+        payment_status = $11,
+        pay_address = $12,
+        pay_amount = $13,
+        pay_currency = $14,
+        price_amount = $15,
+        price_currency = $16,
+        expiration_estimate_date = $17,
+        paid_at = $18,
+        payment_creation_in_progress = $19,
+        notification_sent = $20,
+        updated_at = NOW()
+      WHERE reference = $1
+    `,
+    [
+      order.reference,
+      order.status,
+      order.payment_method,
+      order.crypto_currency,
+      JSON.stringify(order.customer),
+      JSON.stringify(order.items),
+      order.subtotal,
+      order.total,
+      order.currency,
+      order.payment_id,
+      order.payment_status,
+      order.pay_address,
+      order.pay_amount,
+      order.pay_currency,
+      order.price_amount,
+      order.price_currency,
+      order.expiration_estimate_date,
+      order.paid_at,
+      order.payment_creation_in_progress,
+      order.notification_sent
+    ]
+  );
+};
+
+/* =========================================================
+   APP SERVICES
    ========================================================= */
 
 const resend =
@@ -36,20 +401,20 @@ const resend =
     ? new Resend(process.env.RESEND_API_KEY)
     : null;
 
-
 /* =========================================================
    SECURITY
    ========================================================= */
 
 app.disable("x-powered-by");
 
-
 app.use(
   helmet({
-    contentSecurityPolicy: false
+    contentSecurityPolicy: false,
+    crossOriginResourcePolicy: {
+      policy: "cross-origin"
+    }
   })
 );
-
 
 app.use(
   cors({
@@ -60,9 +425,8 @@ app.use(
   })
 );
 
-
 /* =========================================================
-   REQUEST LIMITS
+   RATE LIMITING
    ========================================================= */
 
 const apiLimiter =
@@ -73,29 +437,41 @@ const apiLimiter =
     legacyHeaders: false,
     message: {
       success: false,
-      error: "Too many requests. Please try again later."
+      error:
+        "Too many requests. Please try again later."
     }
   });
-
 
 const paymentLimiter =
   rateLimit({
     windowMs: 10 * 60 * 1000,
-    max: 30,
+    max: 20,
     standardHeaders: true,
     legacyHeaders: false,
     message: {
       success: false,
-      error: "Too many payment requests. Please try again later."
+      error:
+        "Too many payment requests. Please try again later."
     }
   });
 
+const statusLimiter =
+  rateLimit({
+    windowMs: 10 * 60 * 1000,
+    max: 120,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: {
+      success: false,
+      error:
+        "Too many status requests. Please try again later."
+    }
+  });
 
 app.use(
   "/api/",
   apiLimiter
 );
-
 
 /* =========================================================
    BODY PARSING
@@ -108,17 +484,8 @@ app.use(
   })
 );
 
-
 /* =========================================================
    SERVER-SIDE PRODUCT CATALOG
-   =========================================================
-
-   IMPORTANT:
-
-   The browser is NOT trusted with prices.
-
-   These are the authoritative prices used to
-   calculate every order on the server.
    ========================================================= */
 
 const PRODUCT_CATALOG = new Map([
@@ -255,7 +622,6 @@ const PRODUCT_CATALOG = new Map([
   ]
 ]);
 
-
 /* =========================================================
    SUPPORTED CRYPTOCURRENCIES
    ========================================================= */
@@ -268,26 +634,6 @@ const SUPPORTED_CRYPTO =
     "usdc"
   ]);
 
-
-/* =========================================================
-   DEVELOPMENT ORDER STORE
-   =========================================================
-
-   IMPORTANT:
-
-   This is secure enough for our current development
-   architecture, but it is NOT a production database.
-
-   Orders disappear when the server restarts.
-
-   Later we should move this to PostgreSQL / MySQL /
-   SQLite or another persistent database.
-   ========================================================= */
-
-const orders =
-  new Map();
-
-
 /* =========================================================
    HELPERS
    ========================================================= */
@@ -296,10 +642,11 @@ const isValidEmail = (email) => {
   return (
     typeof email === "string" &&
     email.length <= 254 &&
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+      email
+    )
   );
 };
-
 
 const normalizeString = (
   value,
@@ -316,9 +663,7 @@ const normalizeString = (
     .slice(0, maxLength);
 };
 
-
 const generateOrderReference = () => {
-
   const random =
     crypto
       .randomBytes(6)
@@ -333,14 +678,13 @@ const generateOrderReference = () => {
   return `AX-${timestamp}-${random}`;
 };
 
-
-const sortObject = (object) => {
-
+const sortObject = (
+  object
+) => {
   return Object.keys(object)
     .sort()
     .reduce(
       (result, key) => {
-
         result[key] =
           object[key];
 
@@ -350,23 +694,36 @@ const sortObject = (object) => {
     );
 };
 
-
-const escapeHtml = (value) => {
-
+const escapeHtml = (
+  value
+) => {
   return String(value ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
+    .replace(
+      /&/g,
+      "&amp;"
+    )
+    .replace(
+      /</g,
+      "&lt;"
+    )
+    .replace(
+      />/g,
+      "&gt;"
+    )
+    .replace(
+      /"/g,
+      "&quot;"
+    )
+    .replace(
+      /'/g,
+      "&#039;"
+    );
 };
-
 
 const safeError = (
   message,
   status = 400
 ) => {
-
   return {
     status,
     body: {
@@ -375,14 +732,178 @@ const safeError = (
     }
   };
 };
+const sendNewOrderNotification = async (order) => {
+  if (!resend) {
+    console.warn(
+      "Resend is not configured. New-order email skipped."
+    );
+    return;
+  }
 
+  const destination =
+    process.env.ORDER_NOTIFICATION_EMAIL;
 
+  if (!destination) {
+    console.warn(
+      "ORDER_NOTIFICATION_EMAIL is not configured."
+    );
+    return;
+  }
+
+  const itemsHtml = order.items
+    .map(
+      (item) => `
+        <tr>
+          <td style="padding:8px 0;">
+            ${escapeHtml(item.title)}
+          </td>
+
+          <td style="padding:8px 0;">
+            ${item.quantity}
+          </td>
+
+          <td style="padding:8px 0;">
+            $${Number(item.lineTotal).toLocaleString("en-US")}
+          </td>
+        </tr>
+      `
+    )
+    .join("");
+
+  try {
+    const result = await resend.emails.send({
+      from:
+        "AUCTION X <onboarding@resend.dev>",
+
+      to:
+        [destination],
+
+      subject:
+        `AUCTION X — New Order — ${order.reference}`,
+
+      html: `
+        <div
+          style="
+            font-family:Arial,sans-serif;
+            max-width:700px;
+            margin:auto;
+            color:#111;
+          "
+        >
+          <h1>AUCTION X</h1>
+
+          <h2>New Order Received</h2>
+
+          <p>
+            A new order has been created on AUCTION X.
+          </p>
+
+          <p>
+            <strong>
+              Order:
+              ${escapeHtml(order.reference)}
+            </strong>
+          </p>
+
+          <hr>
+
+          <h3>Customer</h3>
+
+          <p>
+            ${escapeHtml(order.customer.name)}<br>
+            ${escapeHtml(order.customer.email)}<br>
+            ${escapeHtml(order.customer.phone)}
+          </p>
+
+          <h3>Delivery Address</h3>
+
+          <p>
+            ${escapeHtml(order.customer.address)}<br>
+            ${escapeHtml(order.customer.city)}<br>
+            ${escapeHtml(order.customer.state)}<br>
+            ${escapeHtml(order.customer.country)}<br>
+            ${escapeHtml(order.customer.postalCode)}
+          </p>
+
+          <h3>Order Items</h3>
+
+          <table
+            style="
+              width:100%;
+              border-collapse:collapse;
+            "
+          >
+            <thead>
+              <tr>
+                <th align="left">Item</th>
+                <th align="left">Qty</th>
+                <th align="left">Total</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              ${itemsHtml}
+            </tbody>
+          </table>
+
+          <hr>
+
+          <p>
+            <strong>
+              Order Total:
+              $${Number(order.total).toLocaleString("en-US")}
+            </strong>
+          </p>
+
+          <p>
+            Payment Method:
+            ${escapeHtml(order.payment_method)}
+          </p>
+
+          ${
+            order.crypto_currency
+              ? `
+                <p>
+                  Cryptocurrency:
+                  ${escapeHtml(order.crypto_currency)}
+                </p>
+              `
+              : ""
+          }
+
+          <p>
+            Order Status:
+            ${escapeHtml(order.status)}
+          </p>
+
+          <hr>
+
+          <p>
+            This notification was generated automatically by AUCTION X.
+          </p>
+        </div>
+      `
+    });
+
+    console.log(
+      `New-order email sent for ${order.reference}`,
+      result?.data?.id || ""
+    );
+
+  } catch (error) {
+    console.error(
+      `New-order email failed for ${order.reference}:`,
+      error.message
+    );
+  }
+};
 /* =========================================================
    ORDER SERIALIZATION
    ========================================================= */
 
-const publicOrder = (order) => {
-
+const publicOrder = (
+  order
+) => {
   if (!order) {
     return null;
   }
@@ -402,32 +923,32 @@ const publicOrder = (order) => {
 
     customer: {
       name:
-        order.customer.name,
+        order.customer?.name || "",
 
       email:
-        order.customer.email,
+        order.customer?.email || "",
 
       phone:
-        order.customer.phone,
+        order.customer?.phone || "",
 
       address:
-        order.customer.address,
+        order.customer?.address || "",
 
       city:
-        order.customer.city,
+        order.customer?.city || "",
 
       state:
-        order.customer.state,
+        order.customer?.state || "",
 
       country:
-        order.customer.country,
+        order.customer?.country || "",
 
       postalCode:
-        order.customer.postalCode
+        order.customer?.postalCode || ""
     },
 
     items:
-      order.items,
+      order.items || [],
 
     subtotal:
       order.subtotal,
@@ -469,210 +990,43 @@ const publicOrder = (order) => {
       order.created_at
   };
 };
-
-
-/* =========================================================
-   EMAIL NOTIFICATION
-   ========================================================= */
-
-const sendPaidOrderNotification = async (
-  order
-) => {
-
-  if (!resend) {
-
-    console.warn(
-      "Resend is not configured. Paid-order email skipped."
-    );
-
-    return;
-  }
-
-
-  const destination =
-    process.env.ORDER_NOTIFICATION_EMAIL;
-
-
-  if (!destination) {
-
-    console.warn(
-      "ORDER_NOTIFICATION_EMAIL is not configured."
-    );
-
-    return;
-  }
-
-
-  const itemsHtml =
-    order.items
-      .map(
-        (item) => `
-          <tr>
-            <td style="padding:8px 0;">
-              ${escapeHtml(item.title)}
-            </td>
-
-            <td style="padding:8px 0;">
-              ${item.quantity}
-            </td>
-
-            <td style="padding:8px 0;">
-              $${Number(item.lineTotal).toLocaleString("en-US")}
-            </td>
-          </tr>
-        `
-      )
-      .join("");
-
-
-  try {
-
-    await resend.emails.send({
-      from:
-        "AUCTION X <onboarding@resend.dev>",
-
-      to:
-        [destination],
-
-      subject:
-        `AUCTION X — Payment Confirmed — ${order.reference}`,
-
-      html: `
-        <div style="
-          font-family:Arial,sans-serif;
-          max-width:700px;
-          margin:auto;
-          color:#111;
-        ">
-
-          <h1>
-            AUCTION X
-          </h1>
-
-          <h2>
-            Payment Confirmed
-          </h2>
-
-          <p>
-            Order <strong>
-              ${escapeHtml(order.reference)}
-            </strong>
-            has been verified as paid.
-          </p>
-
-          <hr>
-
-          <h3>
-            Customer
-          </h3>
-
-          <p>
-            ${escapeHtml(order.customer.name)}<br>
-            ${escapeHtml(order.customer.email)}<br>
-            ${escapeHtml(order.customer.phone)}
-          </p>
-
-          <h3>
-            Delivery
-          </h3>
-
-          <p>
-            ${escapeHtml(order.customer.address)}<br>
-            ${escapeHtml(order.customer.city)}<br>
-            ${escapeHtml(order.customer.state)}<br>
-            ${escapeHtml(order.customer.country)}<br>
-            ${escapeHtml(order.customer.postalCode)}
-          </p>
-
-          <h3>
-            Items
-          </h3>
-
-          <table
-            style="
-              width:100%;
-              border-collapse:collapse;
-            "
-          >
-            <thead>
-              <tr>
-                <th align="left">
-                  Item
-                </th>
-
-                <th align="left">
-                  Qty
-                </th>
-
-                <th align="left">
-                  Total
-                </th>
-              </tr>
-            </thead>
-
-            <tbody>
-              ${itemsHtml}
-            </tbody>
-          </table>
-
-          <hr>
-
-          <p>
-            <strong>
-              Total:
-              $${Number(order.total).toLocaleString("en-US")}
-            </strong>
-          </p>
-
-          <p>
-            Payment:
-            ${escapeHtml(
-              order.pay_currency || "Crypto"
-            )}
-          </p>
-
-          <p>
-            Payment ID:
-            ${escapeHtml(
-              order.payment_id || "—"
-            )}
-          </p>
-
-        </div>
-      `
-    });
-
-
-    console.log(
-      `Paid-order notification sent for ${order.reference}`
-    );
-
-  } catch (error) {
-
-    console.error(
-      "Resend notification failed:",
-      error.message
-    );
-  }
-};
-
-
 /* =========================================================
    HEALTH
    ========================================================= */
 
 app.get(
   "/api/health",
-  (req, res) => {
+  async (
+    req,
+    res
+  ) => {
+    try {
+      await pool.query(
+        "SELECT 1"
+      );
 
-    res.json({
-      success: true,
-      service: "AUCTION X API",
-      status: "online"
-    });
+      return res.json({
+        success: true,
+        service:
+          "AUCTION X API",
+        status:
+          "online",
+        database:
+          "connected"
+      });
+    } catch (error) {
+      return res.status(503).json({
+        success: false,
+        service:
+          "AUCTION X API",
+        status:
+          "online",
+        database:
+          "disconnected"
+      });
+    }
   }
 );
-
 
 /* =========================================================
    TEST EMAIL
@@ -680,21 +1034,21 @@ app.get(
 
 app.get(
   "/api/test-email",
-  async (req, res) => {
-
+  async (
+    req,
+    res
+  ) => {
     if (
-      process.env.NODE_ENV === "production"
+      process.env.NODE_ENV ===
+      "production"
     ) {
-
       return res.status(404).json({
         success: false,
         error: "Not found."
       });
     }
 
-
     if (!resend) {
-
       return res.status(500).json({
         success: false,
         error:
@@ -702,13 +1056,10 @@ app.get(
       });
     }
 
-
     const destination =
       process.env.ORDER_NOTIFICATION_EMAIL;
 
-
     if (!destination) {
-
       return res.status(500).json({
         success: false,
         error:
@@ -716,12 +1067,9 @@ app.get(
       });
     }
 
-
     try {
-
       const result =
         await resend.emails.send({
-
           from:
             "AUCTION X <onboarding@resend.dev>",
 
@@ -738,7 +1086,6 @@ app.get(
                 padding:30px;
               "
             >
-
               <h1>
                 AUCTION X
               </h1>
@@ -750,25 +1097,23 @@ app.get(
               <p>
                 This is a development test.
               </p>
-
             </div>
           `
         });
 
-
       return res.json({
         success: true,
-        message: "Test email sent.",
-        id: result?.data?.id || null
+        message:
+          "Test email sent.",
+        id:
+          result?.data?.id ||
+          null
       });
-
     } catch (error) {
-
       console.error(
         "Test email failed:",
         error.message
       );
-
 
       return res.status(500).json({
         success: false,
@@ -779,7 +1124,6 @@ app.get(
   }
 );
 
-
 /* =========================================================
    CREATE ORDER
    ========================================================= */
@@ -787,23 +1131,23 @@ app.get(
 app.post(
   "/api/orders/create",
   paymentLimiter,
-  (req, res) => {
-
+  async (
+    req,
+    res
+  ) => {
     try {
-
       const body =
         req.body || {};
-
 
       const customer =
         body.customer || {};
 
-
       const rawItems =
-        Array.isArray(body.items)
+        Array.isArray(
+          body.items
+        )
           ? body.items
           : [];
-
 
       /* ===================================================
          CUSTOMER VALIDATION
@@ -815,13 +1159,11 @@ app.post(
           100
         );
 
-
       const email =
         normalizeString(
           customer.email,
           254
         );
-
 
       const phone =
         normalizeString(
@@ -829,13 +1171,11 @@ app.post(
           50
         );
 
-
       const address =
         normalizeString(
           customer.address,
           300
         );
-
 
       const city =
         normalizeString(
@@ -843,13 +1183,11 @@ app.post(
           100
         );
 
-
       const state =
         normalizeString(
           customer.state,
           100
         );
-
 
       const country =
         normalizeString(
@@ -857,13 +1195,11 @@ app.post(
           100
         );
 
-
       const postalCode =
         normalizeString(
           customer.postalCode,
           30
         );
-
 
       if (
         !name ||
@@ -875,7 +1211,6 @@ app.post(
         !country ||
         !postalCode
       ) {
-
         const error =
           safeError(
             "Complete all required delivery information."
@@ -886,11 +1221,11 @@ app.post(
           .json(error.body);
       }
 
-
       if (
-        !isValidEmail(email)
+        !isValidEmail(
+          email
+        )
       ) {
-
         const error =
           safeError(
             "Please provide a valid email address."
@@ -901,7 +1236,6 @@ app.post(
           .json(error.body);
       }
 
-
       /* ===================================================
          ITEM VALIDATION
          =================================================== */
@@ -910,7 +1244,6 @@ app.post(
         rawItems.length < 1 ||
         rawItems.length > 20
       ) {
-
         const error =
           safeError(
             "Order must contain between 1 and 20 listings."
@@ -921,33 +1254,26 @@ app.post(
           .json(error.body);
       }
 
-
       const calculatedItems = [];
 
-
       let subtotal = 0;
-
 
       for (
         const item of rawItems
       ) {
-
         const productId =
           normalizeString(
             item?.productId ||
-            item?.id,
+              item?.id,
             100
           );
-
 
         const product =
           PRODUCT_CATALOG.get(
             productId
           );
 
-
         if (!product) {
-
           const error =
             safeError(
               "One or more selected listings are no longer available."
@@ -958,19 +1284,18 @@ app.post(
             .json(error.body);
         }
 
-
         let quantity =
           Number(
             item?.quantity
           );
 
-
         if (
-          !Number.isInteger(quantity)
+          !Number.isInteger(
+            quantity
+          )
         ) {
           quantity = 1;
         }
-
 
         quantity =
           Math.min(
@@ -981,33 +1306,36 @@ app.post(
             )
           );
 
-
         const lineTotal =
           product.price *
           quantity;
 
-
         subtotal +=
           lineTotal;
 
-
         calculatedItems.push({
           productId,
+
           title:
             product.title,
+
           category:
             product.category,
+
           brand:
             product.brand,
+
           condition:
             product.condition,
+
           unitPrice:
             product.price,
+
           quantity,
+
           lineTotal
         });
       }
-
 
       /* ===================================================
          PAYMENT METHOD
@@ -1019,12 +1347,12 @@ app.post(
           30
         ).toLowerCase();
 
-
       if (
-        paymentMethod !== "crypto" &&
-        paymentMethod !== "card"
+        paymentMethod !==
+          "crypto" &&
+        paymentMethod !==
+          "card"
       ) {
-
         const error =
           safeError(
             "Unsupported payment method."
@@ -1035,28 +1363,24 @@ app.post(
           .json(error.body);
       }
 
-
       let cryptoCurrency =
         null;
 
-
       if (
-        paymentMethod === "crypto"
+        paymentMethod ===
+        "crypto"
       ) {
-
         cryptoCurrency =
           normalizeString(
             body.cryptoCurrency,
             30
           ).toLowerCase();
 
-
         if (
           !SUPPORTED_CRYPTO.has(
             cryptoCurrency
           )
         ) {
-
           const error =
             safeError(
               "Unsupported cryptocurrency."
@@ -1068,7 +1392,6 @@ app.post(
         }
       }
 
-
       /* ===================================================
          CREATE SERVER ORDER
          =================================================== */
@@ -1076,9 +1399,7 @@ app.post(
       const reference =
         generateOrderReference();
 
-
       const order = {
-
         reference,
 
         status:
@@ -1149,31 +1470,30 @@ app.post(
           new Date().toISOString()
       };
 
+      await insertOrder(
+  order
+);
 
-      orders.set(
-        reference,
-        order
-      );
+console.log(
+  `Order created: ${reference}`
+);
 
+await sendNewOrderNotification(
+  order
+);
 
-      console.log(
-        `Order created: ${reference}`
-      );
-
-
-      return res.status(201).json({
-        success: true,
-        order:
-          publicOrder(order)
-      });
-
+return res
+  .status(201)
+        .json({
+          success: true,
+          order:
+            publicOrder(order)
+        });
     } catch (error) {
-
       console.error(
         "Order creation error:",
         error.message
       );
-
 
       return res.status(500).json({
         success: false,
@@ -1184,7 +1504,6 @@ app.post(
   }
 );
 
-
 /* =========================================================
    CREATE CRYPTO PAYMENT
    ========================================================= */
@@ -1192,16 +1511,18 @@ app.post(
 app.post(
   "/api/crypto/create",
   paymentLimiter,
-  async (req, res) => {
+  async (
+    req,
+    res
+  ) => {
+    let order = null;
 
     try {
-
       const orderId =
         normalizeString(
           req.body?.order_id,
           100
         );
-
 
       const payCurrency =
         normalizeString(
@@ -1209,9 +1530,7 @@ app.post(
           30
         ).toLowerCase();
 
-
       if (!orderId) {
-
         const error =
           safeError(
             "Order reference is required."
@@ -1222,13 +1541,11 @@ app.post(
           .json(error.body);
       }
 
-
       if (
         !SUPPORTED_CRYPTO.has(
           payCurrency
         )
       ) {
-
         const error =
           safeError(
             "Unsupported cryptocurrency."
@@ -1239,13 +1556,12 @@ app.post(
           .json(error.body);
       }
 
-
-      const order =
-        orders.get(orderId);
-
+      order =
+        await getOrderByReference(
+          orderId
+        );
 
       if (!order) {
-
         const error =
           safeError(
             "Order not found.",
@@ -1257,12 +1573,10 @@ app.post(
           .json(error.body);
       }
 
-
       if (
         order.payment_method !==
         "crypto"
       ) {
-
         const error =
           safeError(
             "This order is not configured for crypto payment."
@@ -1273,11 +1587,10 @@ app.post(
           .json(error.body);
       }
 
-
       if (
-        order.status === "paid"
+        order.status ===
+        "paid"
       ) {
-
         const error =
           safeError(
             "This order has already been paid."
@@ -1288,36 +1601,12 @@ app.post(
           .json(error.body);
       }
 
-
-      /*
-        Prevent duplicate NOWPayments
-        creation requests.
-      */
-
-      if (
-        order.payment_creation_in_progress
-      ) {
-
-        return res.status(409).json({
-          success: false,
-          error:
-            "Payment creation is already in progress."
-        });
-      }
-
-
-      /*
-        If a payment already exists,
-        return it instead of creating
-        another payment.
-      */
-
       if (
         order.payment_id
       ) {
-
         return res.json({
           success: true,
+
           payment: {
             payment_id:
               order.payment_id,
@@ -1349,10 +1638,99 @@ app.post(
         });
       }
 
+      /*
+        Atomic database lock.
+
+        This prevents two requests from creating
+        two NOWPayments payments for one order.
+      */
+
+      const lockResult =
+        await pool.query(
+          `
+            UPDATE orders
+            SET
+              payment_creation_in_progress = TRUE,
+              updated_at = NOW()
+            WHERE
+              reference = $1
+              AND payment_id IS NULL
+              AND payment_creation_in_progress = FALSE
+            RETURNING *
+          `,
+          [order.reference]
+        );
+
+      if (
+        lockResult.rowCount === 0
+      ) {
+        const latestOrder =
+          await getOrderByReference(
+            order.reference
+          );
+
+        if (
+          latestOrder?.payment_id
+        ) {
+          return res.json({
+            success: true,
+
+            payment: {
+              payment_id:
+                latestOrder.payment_id,
+
+              payment_status:
+                latestOrder.payment_status,
+
+              pay_address:
+                latestOrder.pay_address,
+
+              pay_amount:
+                latestOrder.pay_amount,
+
+              pay_currency:
+                latestOrder.pay_currency,
+
+              price_amount:
+                latestOrder.price_amount,
+
+              price_currency:
+                latestOrder.price_currency,
+
+              expiration_estimate_date:
+                latestOrder.expiration_estimate_date,
+
+              order_id:
+                latestOrder.reference
+            }
+          });
+        }
+
+        return res.status(409).json({
+          success: false,
+          error:
+            "Payment creation is already in progress."
+        });
+      }
+
+      order =
+        normalizeDbOrder(
+          lockResult.rows[0]
+        );
 
       if (
         !process.env.NOWPAYMENTS_API_KEY
       ) {
+        await pool.query(
+          `
+            UPDATE orders
+            SET
+              payment_creation_in_progress = FALSE,
+              updated_at = NOW()
+            WHERE reference = $1
+          `,
+          [order.reference]
+        );
 
         return res.status(500).json({
           success: false,
@@ -1361,15 +1739,8 @@ app.post(
         });
       }
 
-
-      order.payment_creation_in_progress =
-        true;
-
-
       try {
-
         const payload = {
-
           price_amount:
             order.total,
 
@@ -1389,7 +1760,6 @@ app.post(
             order.customer.email
         };
 
-
         const response =
           await axios.post(
             "https://api.nowpayments.io/v1/payment",
@@ -1397,7 +1767,8 @@ app.post(
             {
               headers: {
                 "x-api-key":
-                  process.env.NOWPAYMENTS_API_KEY,
+                  process.env
+                    .NOWPAYMENTS_API_KEY,
 
                 "Content-Type":
                   "application/json"
@@ -1407,24 +1778,16 @@ app.post(
             }
           );
 
-
         const payment =
           response.data;
-
 
         if (
           !payment?.payment_id
         ) {
-
           throw new Error(
             "NOWPayments did not return a payment ID."
           );
         }
-
-
-        /*
-          Store provider data server-side.
-        */
 
         order.payment_id =
           String(
@@ -1459,78 +1822,85 @@ app.post(
           payment.expiration_estimate_date ||
           null;
 
+        order.payment_creation_in_progress =
+          false;
 
-        orders.set(
-          order.reference,
+        await updateOrder(
           order
         );
-
 
         console.log(
           `Crypto payment created for ${order.reference}`
         );
 
+        return res
+          .status(201)
+          .json({
+            success: true,
 
-        return res.status(201).json({
+            payment: {
+              payment_id:
+                order.payment_id,
 
-          success: true,
+              payment_status:
+                order.payment_status,
 
-          payment: {
-            payment_id:
-              order.payment_id,
+              pay_address:
+                order.pay_address,
 
-            payment_status:
-              order.payment_status,
+              pay_amount:
+                order.pay_amount,
 
-            pay_address:
-              order.pay_address,
+              pay_currency:
+                order.pay_currency,
 
-            pay_amount:
-              order.pay_amount,
+              price_amount:
+                order.price_amount,
 
-            pay_currency:
-              order.pay_currency,
+              price_currency:
+                order.price_currency,
 
-            price_amount:
-              order.price_amount,
+              expiration_estimate_date:
+                order.expiration_estimate_date,
 
-            price_currency:
-              order.price_currency,
+              order_id:
+                order.reference
+            }
+          });
+      } catch (paymentError) {
+        await pool.query(
+          `
+            UPDATE orders
+            SET
+              payment_creation_in_progress = FALSE,
+              updated_at = NOW()
+            WHERE reference = $1
+          `,
+          [order.reference]
+        );
 
-            expiration_estimate_date:
-              order.expiration_estimate_date,
-
-            order_id:
-              order.reference
-          }
-        });
-
-      } finally {
-
-        order.payment_creation_in_progress =
-          false;
+        throw paymentError;
       }
-
     } catch (error) {
-
       console.error(
         "Crypto payment creation failed:",
         error.response?.data ||
-        error.message
+          error.message
       );
 
-
-      return res.status(
-        error.response?.status || 500
-      ).json({
-        success: false,
-        error:
-          "Unable to create the crypto payment."
-      });
+      return res
+        .status(
+          error.response?.status ||
+            500
+        )
+        .json({
+          success: false,
+          error:
+            "Unable to create the crypto payment."
+        });
     }
   }
 );
-
 
 /* =========================================================
    CRYPTO PAYMENT STATUS
@@ -1538,19 +1908,19 @@ app.post(
 
 app.get(
   "/api/crypto/status/:paymentId",
-  async (req, res) => {
-
+  statusLimiter,
+  async (
+    req,
+    res
+  ) => {
     try {
-
       const paymentId =
         normalizeString(
           req.params.paymentId,
           100
         );
 
-
       if (!paymentId) {
-
         return res.status(400).json({
           success: false,
           error:
@@ -1558,41 +1928,12 @@ app.get(
         });
       }
 
-
-      /*
-        IMPORTANT:
-
-        Do not allow the browser to query
-        arbitrary NOWPayments payment IDs.
-
-        First find the payment in our own
-        server-side order store.
-      */
-
-      let matchingOrder =
-        null;
-
-
-      for (
-        const order of orders.values()
-      ) {
-
-        if (
-          String(
-            order.payment_id
-          ) === paymentId
-        ) {
-
-          matchingOrder =
-            order;
-
-          break;
-        }
-      }
-
+      const matchingOrder =
+        await getOrderByPaymentId(
+          paymentId
+        );
 
       if (!matchingOrder) {
-
         return res.status(404).json({
           success: false,
           error:
@@ -1600,18 +1941,15 @@ app.get(
         });
       }
 
-
       if (
         !process.env.NOWPAYMENTS_API_KEY
       ) {
-
         return res.status(500).json({
           success: false,
           error:
             "NOWPayments is not configured."
         });
       }
-
 
       const response =
         await axios.get(
@@ -1621,33 +1959,24 @@ app.get(
           {
             headers: {
               "x-api-key":
-                process.env.NOWPAYMENTS_API_KEY
+                process.env
+                  .NOWPAYMENTS_API_KEY
             },
 
             timeout: 15000
           }
         );
 
-
       const payment =
         response.data;
 
-
-      if (
-        !payment
-      ) {
-
+      if (!payment) {
         return res.status(502).json({
           success: false,
           error:
             "Payment provider returned no payment data."
         });
       }
-
-
-      /*
-        Store latest provider state.
-      */
 
       matchingOrder.payment_status =
         payment.payment_status ||
@@ -1677,40 +2006,29 @@ app.get(
         payment.expiration_estimate_date ||
         matchingOrder.expiration_estimate_date;
 
-
-      /*
-        IMPORTANT:
-
-        The client is not allowed to
-        decide that payment is complete.
-
-        The server verifies the provider
-        amount before marking the order paid.
-      */
+      /* ===================================================
+         VERIFY FINISHED PAYMENT
+         =================================================== */
 
       if (
         payment.payment_status ===
         "finished"
       ) {
-
         const providerAmount =
           Number(
             payment.price_amount
           );
-
 
         const expectedAmount =
           Number(
             matchingOrder.total
           );
 
-
         const providerCurrency =
           String(
             payment.price_currency ||
-            ""
+              ""
           ).toLowerCase();
-
 
         const amountMatches =
           Number.isFinite(
@@ -1718,20 +2036,17 @@ app.get(
           ) &&
           Math.abs(
             providerAmount -
-            expectedAmount
+              expectedAmount
           ) < 0.01;
-
 
         const currencyMatches =
           providerCurrency ===
           "usd";
 
-
         if (
           amountMatches &&
           currencyMatches
         ) {
-
           matchingOrder.status =
             "paid";
 
@@ -1739,49 +2054,38 @@ app.get(
             payment.updated_at ||
             new Date().toISOString();
 
-
-          /*
-            Send the order notification
-            only after verified payment.
-          */
-
           if (
             !matchingOrder.notification_sent
           ) {
-
             matchingOrder.notification_sent =
               true;
 
+            await updateOrder(
+              matchingOrder
+            );
 
             await sendPaidOrderNotification(
               matchingOrder
             );
           }
-
         } else {
-
           console.error(
             `Payment amount/currency mismatch for ${matchingOrder.reference}`
           );
-
 
           matchingOrder.status =
             "payment_review";
         }
       }
 
-
-      orders.set(
-        matchingOrder.reference,
+      await updateOrder(
         matchingOrder
       );
-
 
       return res.json({
         success: true,
 
         payment: {
-
           payment_id:
             matchingOrder.payment_id,
 
@@ -1809,11 +2113,6 @@ app.get(
           order_id:
             matchingOrder.reference,
 
-          /*
-            This is our server-side status,
-            not a client-created status.
-          */
-
           order_status:
             matchingOrder.status,
 
@@ -1821,27 +2120,26 @@ app.get(
             matchingOrder.paid_at
         }
       });
-
     } catch (error) {
-
       console.error(
         "Crypto status request failed:",
         error.response?.data ||
-        error.message
+          error.message
       );
 
-
-      return res.status(
-        error.response?.status || 500
-      ).json({
-        success: false,
-        error:
-          "Unable to retrieve payment status."
-      });
+      return res
+        .status(
+          error.response?.status ||
+            500
+        )
+        .json({
+          success: false,
+          error:
+            "Unable to retrieve payment status."
+        });
     }
   }
 );
-
 
 /* =========================================================
    NOWPAYMENTS IPN
@@ -1849,25 +2147,24 @@ app.get(
 
 app.post(
   "/api/crypto/ipn",
-  async (req, res) => {
-
+  async (
+    req,
+    res
+  ) => {
     try {
-
       const receivedSignature =
         req.headers[
           "x-nowpayments-sig"
         ];
 
-
       const secret =
-        process.env.NOWPAYMENTS_IPN_SECRET;
-
+        process.env
+          .NOWPAYMENTS_IPN_SECRET;
 
       if (
         !receivedSignature ||
         !secret
       ) {
-
         return res.status(401).json({
           success: false,
           error:
@@ -1875,18 +2172,15 @@ app.post(
         });
       }
 
-
       const sortedBody =
         sortObject(
           req.body
         );
 
-
       const bodyString =
         JSON.stringify(
           sortedBody
         );
-
 
       const expectedSignature =
         crypto
@@ -1894,9 +2188,10 @@ app.post(
             "sha512",
             secret
           )
-          .update(bodyString)
+          .update(
+            bodyString
+          )
           .digest("hex");
-
 
       const receivedBuffer =
         Buffer.from(
@@ -1904,27 +2199,23 @@ app.post(
           "utf8"
         );
 
-
       const expectedBuffer =
         Buffer.from(
           expectedSignature,
           "utf8"
         );
 
-
       if (
         receivedBuffer.length !==
-        expectedBuffer.length ||
+          expectedBuffer.length ||
         !crypto.timingSafeEqual(
           receivedBuffer,
           expectedBuffer
         )
       ) {
-
         console.warn(
           "Rejected invalid NOWPayments IPN signature."
         );
-
 
         return res.status(401).json({
           success: false,
@@ -1933,64 +2224,42 @@ app.post(
         });
       }
 
-
       const paymentId =
         String(
           req.body?.payment_id ||
-          ""
+            ""
         );
-
 
       const orderId =
         String(
           req.body?.order_id ||
-          ""
+            ""
         );
-
 
       let order =
         orderId
-          ? orders.get(orderId)
+          ? await getOrderByReference(
+              orderId
+            )
           : null;
-
 
       if (
         !order &&
         paymentId
       ) {
-
-        for (
-          const candidate of orders.values()
-        ) {
-
-          if (
-            String(
-              candidate.payment_id
-            ) === paymentId
-          ) {
-
-            order =
-              candidate;
-
-            break;
-          }
-        }
+        order =
+          await getOrderByPaymentId(
+            paymentId
+          );
       }
 
-
       if (!order) {
-
         return res.status(404).json({
           success: false,
           error:
             "Order not found."
         });
       }
-
-
-      /*
-        Payment must belong to this order.
-      */
 
       if (
         order.payment_id &&
@@ -1999,7 +2268,6 @@ app.post(
           order.payment_id
         ) !== paymentId
       ) {
-
         return res.status(400).json({
           success: false,
           error:
@@ -2007,17 +2275,14 @@ app.post(
         });
       }
 
-
       const paymentStatus =
         String(
           req.body?.payment_status ||
-          ""
+            ""
         ).toLowerCase();
-
 
       order.payment_status =
         paymentStatus;
-
 
       order.pay_address =
         req.body?.pay_address ||
@@ -2044,34 +2309,29 @@ app.post(
         order.price_currency ||
         null;
 
-
-      /* =====================================================
+      /* ===================================================
          VERIFY FINISHED PAYMENT
-         ===================================================== */
+         =================================================== */
 
       if (
         paymentStatus ===
         "finished"
       ) {
-
         const receivedAmount =
           Number(
             req.body?.price_amount
           );
-
 
         const expectedAmount =
           Number(
             order.total
           );
 
-
         const receivedCurrency =
           String(
             req.body?.price_currency ||
-            ""
+              ""
           ).toLowerCase();
-
 
         const amountMatches =
           Number.isFinite(
@@ -2079,34 +2339,27 @@ app.post(
           ) &&
           Math.abs(
             receivedAmount -
-            expectedAmount
+              expectedAmount
           ) < 0.01;
-
 
         const currencyMatches =
           receivedCurrency ===
           "usd";
 
-
         if (
           !amountMatches ||
           !currencyMatches
         ) {
-
           order.status =
             "payment_review";
 
-
-          orders.set(
-            order.reference,
+          await updateOrder(
             order
           );
-
 
           console.error(
             `IPN payment mismatch for ${order.reference}`
           );
-
 
           return res.status(400).json({
             success: false,
@@ -2115,26 +2368,21 @@ app.post(
           });
         }
 
-
-        /*
-          Only now is the order officially paid.
-        */
-
         order.status =
           "paid";
-
 
         order.paid_at =
           new Date().toISOString();
 
-
         if (
           !order.notification_sent
         ) {
-
           order.notification_sent =
             true;
 
+          await updateOrder(
+            order
+          );
 
           await sendPaidOrderNotification(
             order
@@ -2142,54 +2390,42 @@ app.post(
         }
       }
 
-
       if (
         paymentStatus ===
         "failed"
       ) {
-
         order.status =
           "failed";
       }
-
 
       if (
         paymentStatus ===
         "expired"
       ) {
-
         order.status =
           "expired";
       }
-
 
       if (
         paymentStatus ===
         "refunded"
       ) {
-
         order.status =
           "refunded";
       }
 
-
-      orders.set(
-        order.reference,
+      await updateOrder(
         order
       );
-
 
       return res.json({
         success: true
       });
-
     } catch (error) {
-
       console.error(
         "NOWPayments IPN error:",
         error.message
       );
-
 
       return res.status(500).json({
         success: false,
@@ -2200,31 +2436,25 @@ app.post(
   }
 );
 
-
 /* =========================================================
    PAYSTACK INITIALIZE
-   =========================================================
-
-   Card payments are currently disabled in the
-   frontend, but this endpoint is still hardened.
    ========================================================= */
 
 app.post(
   "/api/payment/initialize",
   paymentLimiter,
-  async (req, res) => {
-
+  async (
+    req,
+    res
+  ) => {
     try {
-
       const orderId =
         normalizeString(
           req.body?.order_id,
           100
         );
 
-
       if (!orderId) {
-
         return res.status(400).json({
           success: false,
           error:
@@ -2232,13 +2462,12 @@ app.post(
         });
       }
 
-
       const order =
-        orders.get(orderId);
-
+        await getOrderByReference(
+          orderId
+        );
 
       if (!order) {
-
         return res.status(404).json({
           success: false,
           error:
@@ -2246,12 +2475,10 @@ app.post(
         });
       }
 
-
       if (
         order.payment_method !==
         "card"
       ) {
-
         return res.status(400).json({
           success: false,
           error:
@@ -2259,11 +2486,9 @@ app.post(
         });
       }
 
-
       if (
         !process.env.PAYSTACK_SECRET_KEY
       ) {
-
         return res.status(500).json({
           success: false,
           error:
@@ -2271,16 +2496,13 @@ app.post(
         });
       }
 
-
       const callbackUrl =
         normalizeString(
           req.body?.callback_url,
           500
         );
 
-
       const payload = {
-
         email:
           order.customer.email,
 
@@ -2296,14 +2518,14 @@ app.post(
           order.reference,
 
         callback_url:
-          callbackUrl || undefined,
+          callbackUrl ||
+          undefined,
 
         metadata: {
           order_reference:
             order.reference
         }
       };
-
 
       const response =
         await axios.post(
@@ -2322,47 +2544,47 @@ app.post(
           }
         );
 
-
       const payment =
         response.data;
-
 
       return res.json({
         success: true,
 
         authorization_url:
-          payment?.data?.authorization_url ||
+          payment?.data
+            ?.authorization_url ||
           null,
 
         access_code:
-          payment?.data?.access_code ||
+          payment?.data
+            ?.access_code ||
           null,
 
         reference:
-          payment?.data?.reference ||
+          payment?.data
+            ?.reference ||
           order.reference
       });
-
     } catch (error) {
-
       console.error(
         "Paystack initialization failed:",
         error.response?.data ||
-        error.message
+          error.message
       );
 
-
-      return res.status(
-        error.response?.status || 500
-      ).json({
-        success: false,
-        error:
-          "Unable to initialize card payment."
-      });
+      return res
+        .status(
+          error.response?.status ||
+            500
+        )
+        .json({
+          success: false,
+          error:
+            "Unable to initialize card payment."
+        });
     }
   }
 );
-
 
 /* =========================================================
    PAYSTACK VERIFY
@@ -2370,19 +2592,19 @@ app.post(
 
 app.get(
   "/api/payment/verify/:reference",
-  async (req, res) => {
-
+  statusLimiter,
+  async (
+    req,
+    res
+  ) => {
     try {
-
       const reference =
         normalizeString(
           req.params.reference,
           100
         );
 
-
       if (!reference) {
-
         return res.status(400).json({
           success: false,
           error:
@@ -2390,13 +2612,12 @@ app.get(
         });
       }
 
-
       const order =
-        orders.get(reference);
-
+        await getOrderByReference(
+          reference
+        );
 
       if (!order) {
-
         return res.status(404).json({
           success: false,
           error:
@@ -2404,18 +2625,15 @@ app.get(
         });
       }
 
-
       if (
         !process.env.PAYSTACK_SECRET_KEY
       ) {
-
         return res.status(500).json({
           success: false,
           error:
             "Paystack is not configured."
         });
       }
-
 
       const response =
         await axios.get(
@@ -2432,13 +2650,10 @@ app.get(
           }
         );
 
-
       const transaction =
         response.data?.data;
 
-
       if (!transaction) {
-
         return res.status(502).json({
           success: false,
           error:
@@ -2446,18 +2661,15 @@ app.get(
         });
       }
 
-
       const providerAmount =
         Number(
           transaction.amount
         ) / 100;
 
-
       const expectedAmount =
         Number(
           order.total
         );
-
 
       const amountMatches =
         Number.isFinite(
@@ -2465,29 +2677,25 @@ app.get(
         ) &&
         Math.abs(
           providerAmount -
-          expectedAmount
+            expectedAmount
         ) < 0.01;
-
 
       const currencyMatches =
         String(
           transaction.currency ||
-          ""
+            ""
         ).toUpperCase() ===
         "USD";
-
 
       const successful =
         transaction.status ===
         "success";
-
 
       if (
         successful &&
         amountMatches &&
         currencyMatches
       ) {
-
         order.status =
           "paid";
 
@@ -2498,30 +2706,27 @@ app.get(
           transaction.paid_at ||
           new Date().toISOString();
 
-
-        orders.set(
-          order.reference,
-          order
-        );
-
-
         if (
           !order.notification_sent
         ) {
-
           order.notification_sent =
             true;
 
+          await updateOrder(
+            order
+          );
 
           await sendPaidOrderNotification(
+            order
+          );
+        } else {
+          await updateOrder(
             order
           );
         }
       }
 
-
       return res.json({
-
         success: true,
 
         status:
@@ -2542,53 +2747,36 @@ app.get(
         order_status:
           order.status
       });
-
     } catch (error) {
-
       console.error(
         "Paystack verification failed:",
         error.response?.data ||
-        error.message
+          error.message
       );
 
-
-      return res.status(
-        error.response?.status || 500
-      ).json({
-        success: false,
-        error:
-          "Unable to verify payment."
-      });
+      return res
+        .status(
+          error.response?.status ||
+            500
+        )
+        .json({
+          success: false,
+          error:
+            "Unable to verify payment."
+        });
     }
   }
 );
-
-
-/* =========================================================
-   REMOVE PUBLIC CLIENT-SIDE ORDER NOTIFICATION
-   =========================================================
-
-   We intentionally DO NOT expose:
-
-   POST /api/orders/notify
-
-   anymore.
-
-   A browser must never be able to tell the server:
-   "I paid."
-
-   Only verified provider payment status can
-   trigger an order notification.
-   ========================================================= */
-
 
 /* =========================================================
    404
    ========================================================= */
 
 app.use(
-  (req, res) => {
-
+  (
+    req,
+    res
+  ) => {
     res.status(404).json({
       success: false,
       error:
@@ -2597,26 +2785,27 @@ app.use(
   }
 );
 
-
 /* =========================================================
    GLOBAL ERROR HANDLER
    ========================================================= */
 
 app.use(
-  (error, req, res, next) => {
-
+  (
+    error,
+    req,
+    res,
+    next
+  ) => {
     console.error(
       "Unhandled server error:",
       error.message
     );
-
 
     if (
       res.headersSent
     ) {
       return next(error);
     }
-
 
     res.status(500).json({
       success: false,
@@ -2626,55 +2815,104 @@ app.use(
   }
 );
 
-
 /* =========================================================
    START SERVER
    ========================================================= */
 
-app.listen(
-  PORT,
-  () => {
+async function startServer() {
+  try {
+    await initializeDatabase();
 
-    console.log(
-      "======================================"
+    app.listen(
+      PORT,
+      () => {
+        console.log(
+          "======================================"
+        );
+
+        console.log(
+          "AUCTION X API"
+        );
+
+        console.log(
+          "======================================"
+        );
+
+        console.log(
+          `Server: http://localhost:${PORT}`
+        );
+
+        console.log(
+          `Frontend: ${FRONTEND_ORIGIN}`
+        );
+
+        console.log(
+          `Products: ${PRODUCT_CATALOG.size}`
+        );
+
+        console.log(
+          `Crypto: ${[
+            ...SUPPORTED_CRYPTO
+          ].join(", ")}`
+        );
+
+        console.log(
+          "Security middleware: ENABLED"
+        );
+
+        console.log(
+          "Server-side pricing: ENABLED"
+        );
+
+        console.log(
+          "PostgreSQL: CONNECTED"
+        );
+
+        console.log(
+          "Database persistence: ENABLED"
+        );
+
+        console.log(
+          "======================================"
+        );
+      }
+    );
+  } catch (error) {
+    console.error(
+      "Database startup failed:",
+      error.message
     );
 
-    console.log(
-      "AUCTION X API"
-    );
+    await pool.end();
 
-    console.log(
-      "======================================"
-    );
-
-    console.log(
-      `Server: http://localhost:${PORT}`
-    );
-
-    console.log(
-      `Frontend: ${FRONTEND_ORIGIN}`
-    );
-
-    console.log(
-      `Products: ${PRODUCT_CATALOG.size}`
-    );
-
-    console.log(
-      `Crypto: ${[
-        ...SUPPORTED_CRYPTO
-      ].join(", ")}`
-    );
-
-    console.log(
-      "Security middleware: ENABLED"
-    );
-
-    console.log(
-      "Server-side pricing: ENABLED"
-    );
-
-    console.log(
-      "======================================"
-    );
+    process.exit(1);
   }
+}
+
+startServer();
+
+/* =========================================================
+   GRACEFUL SHUTDOWN
+   ========================================================= */
+
+const shutdown = async (
+  signal
+) => {
+  console.log(
+    `${signal} received. Shutting down AUCTION X API...`
+  );
+
+  await pool.end();
+
+  process.exit(0);
+};
+
+process.on(
+  "SIGINT",
+  () => shutdown("SIGINT")
+);
+
+process.on(
+  "SIGTERM",
+  () => shutdown("SIGTERM")
 );

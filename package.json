@@ -5,7 +5,8 @@
   "main": "cart.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node server.js",
+    "dev": "http-server . -p 5175 -c-1"
   },
   "keywords": [],
   "author": "",
@@ -20,5 +21,8 @@
     "helmet": "^8.3.0",
     "pg": "^8.23.1",
     "resend": "^6.30.0"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1"
   }
 }
