@@ -416,11 +416,42 @@ app.use(
   })
 );
 
+const ALLOWED_ORIGINS = [
+  FRONTEND_ORIGIN,
+  "http://localhost:5175"
+];
+
 app.use(
   cors({
-    origin: FRONTEND_ORIGIN,
-    methods: ["GET", "POST"],
-    allowedHeaders: ["Content-Type"],
+    origin: (origin, callback) => {
+      // Allow requests without an Origin header.
+      // Useful for health checks and server-to-server requests.
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      if (ALLOWED_ORIGINS.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(
+        new Error("Not allowed by CORS")
+      );
+    },
+
+    methods: [
+      "GET",
+      "POST",
+      "PUT",
+      "DELETE",
+      "OPTIONS"
+    ],
+
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization"
+    ],
+
     credentials: false
   })
 );

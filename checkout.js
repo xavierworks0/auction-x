@@ -1,16 +1,19 @@
+const CART_KEY = "auctionXCart";
+const ORDER_KEY = "auctionXLastOrder";
+
 /* =========================================================
-   AUCTION X — CHECKOUT
+   API
    ========================================================= */
 
-const CART_KEY = "auctionXCart";
-const ORDER_KEY = "auctionXOrder";
-const API_URL = "https://auction-x-api.onrender.com";
+const API_URL =
+  window.location.hostname === "localhost" ||
+  window.location.hostname === "127.0.0.1"
+    ? "http://localhost:4242"
+    : "https://auction-x-api.onrender.com";
 
-const currencyFormatter = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-  maximumFractionDigits: 0
-});
+const getApiUrl = (path) => {
+  return `${API_URL}${path}`;
+};
 
 
 /* =========================================================
@@ -18,159 +21,610 @@ const currencyFormatter = new Intl.NumberFormat("en-US", {
    ========================================================= */
 
 const products = [
-  { id: "iphone-17-pro", title: "iPhone 17 Pro", price: 1200, image: "assets/images/iphone-17-pro.jpg" },
-  { id: "iphone-17-pro-max", title: "iPhone 17 Pro Max", price: 1350, image: "assets/images/iphone-17-pro-max.jpg" },
-  { id: "iphone-16-pro", title: "iPhone 16 Pro", price: 950, image: "assets/images/iphone-16-pro.jpg" },
-  { id: "iphone-16-pro-max", title: "iPhone 16 Pro Max", price: 1050, image: "assets/images/iphone-16-pro-max.jpg" },
-  { id: "iphone-16", title: "iPhone 16", price: 800, image: "assets/images/iphone-16.jpg" },
-  { id: "iphone-15-pro", title: "iPhone 15 Pro", price: 650, image: "assets/images/iphone-15-pro.jpg" },
-  { id: "iphone-14-pro", title: "iPhone 14 Pro", price: 520, image: "assets/images/iphone-14-pro.jpg" },
-  { id: "galaxy-s26-ultra", title: "Galaxy S26 Ultra", price: 1100, image: "assets/images/galaxy-s26-ultra.jpg" },
-  { id: "galaxy-z-fold", title: "Galaxy Z Fold", price: 1250, image: "assets/images/galaxy-z-fold.jpg" },
-  { id: "macbook-air", title: "MacBook Air", price: 850, image: "assets/images/macbook-air.jpg" },
-  { id: "rolex-watch", title: "Rolex Watch", price: 3200, image: "assets/images/rolex-watch.jpg" },
-  { id: "cartier-watch", title: "Cartier Watch", price: 2800, image: "assets/images/cartier-watch.jpg" }
+  {
+    id: "iphone-17-pro",
+    title: "iPhone 17 Pro",
+    price: 1200,
+    image: "assets/images/iphone-17-pro.jpg"
+  },
+
+  {
+    id: "iphone-17-pro-max",
+    title: "iPhone 17 Pro Max",
+    price: 1350,
+    image: "assets/images/iphone-17-pro-max.jpg"
+  },
+
+  {
+    id: "iphone-16-pro",
+    title: "iPhone 16 Pro",
+    price: 950,
+    image: "assets/images/iphone-16-pro.jpg"
+  },
+
+  {
+    id: "iphone-16-pro-max",
+    title: "iPhone 16 Pro Max",
+    price: 1050,
+    image: "assets/images/iphone-16-pro-max.jpg"
+  },
+
+  {
+    id: "iphone-16",
+    title: "iPhone 16",
+    price: 800,
+    image: "assets/images/iphone-16.jpg"
+  },
+
+  {
+    id: "iphone-15-pro",
+    title: "iPhone 15 Pro",
+    price: 650,
+    image: "assets/images/iphone-15-pro.jpg"
+  },
+
+  {
+    id: "iphone-14-pro",
+    title: "iPhone 14 Pro",
+    price: 520,
+    image: "assets/images/iphone-14-pro.jpg"
+  },
+
+  {
+    id: "galaxy-s26-ultra",
+    title: "Galaxy S26 Ultra",
+    price: 1100,
+    image: "assets/images/galaxy-s26-ultra.jpg"
+  },
+
+  {
+    id: "galaxy-z-fold",
+    title: "Galaxy Z Fold",
+    price: 1250,
+    image: "assets/images/galaxy-z-fold.jpg"
+  },
+
+  {
+    id: "macbook-air",
+    title: "MacBook Air",
+    price: 850,
+    image: "assets/images/macbook-air.jpg"
+  },
+
+  {
+    id: "rolex-watch",
+    title: "Rolex Watch",
+    price: 3200,
+    image: "assets/images/rolex-watch.jpg"
+  },
+
+  {
+    id: "cartier-watch",
+    title: "Cartier Watch",
+    price: 2800,
+    image: "assets/images/cartier-watch.jpg"
+  }
 ];
 
 
 /* =========================================================
-   HELPERS
+   CURRENCY
    ========================================================= */
 
-function getCart() {
-  try {
-    const stored = localStorage.getItem(CART_KEY);
-
-    if (!stored) return [];
-
-    const parsed = JSON.parse(stored);
-
-    return Array.isArray(parsed) ? parsed : [];
-  } catch (error) {
-    console.error("Unable to read cart:", error);
-    return [];
-  }
-}
-
-
-function saveOrder(order) {
-  try {
-    localStorage.setItem(
-      ORDER_KEY,
-      JSON.stringify(order)
-    );
-  } catch (error) {
-    console.error("Unable to save order:", error);
-  }
-}
-
-
-function getApiUrl(path) {
-  return `${API_URL}${path}`;
-}
-
-
-async function parseApiResponse(response) {
-  let data = null;
-
-  try {
-    data = await response.json();
-  } catch (error) {
-    throw new Error("The server returned an invalid response.");
-  }
-
-  if (!response.ok || !data.success) {
-    throw new Error(
-      data?.message ||
-      data?.error ||
-      "The server could not complete your request."
-    );
-  }
-
-  return data;
-}
-
-
-function findProduct(item) {
-  if (!item) return null;
-
-  const productId =
-    item.productId ||
-    item.id ||
-    item.product_id;
-
-  const productName =
-    item.name ||
-    item.title;
-
-  return (
-    products.find(
-      (product) => product.id === productId
-    ) ||
-    products.find(
-      (product) =>
-        product.title.toLowerCase() ===
-        String(productName || "").toLowerCase()
-    ) ||
-    null
-  );
-}
+const currencyFormatter =
+  new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0
+  });
 
 
 /* =========================================================
-   PAYMENT METHOD
+   LOCAL STORAGE
+   ========================================================= */
+
+const getCart = () => {
+  try {
+    return (
+      JSON.parse(
+        localStorage.getItem(CART_KEY)
+      ) || []
+    );
+  } catch {
+    return [];
+  }
+};
+
+const saveOrder = (order) => {
+  localStorage.setItem(
+    ORDER_KEY,
+    JSON.stringify(order)
+  );
+};
+
+const getOrder = () => {
+  try {
+    return JSON.parse(
+      localStorage.getItem(ORDER_KEY)
+    );
+  } catch {
+    return null;
+  }
+};
+
+
+/* =========================================================
+   PRODUCT HELPERS
+   ========================================================= */
+
+const findProduct = (name) => {
+  return products.find(
+    (product) =>
+      product.title === name
+  );
+};
+
+const findProductById = (id) => {
+  return products.find(
+    (product) =>
+      product.id === id
+  );
+};
+
+
+/* =========================================================
+   CART CALCULATION
+   ========================================================= */
+
+const calculateSubtotal = (cart) => {
+  return cart.reduce(
+    (total, item) => {
+      const product =
+        findProduct(item.name);
+
+      if (!product) {
+        return total;
+      }
+
+      const quantity = Math.max(
+        1,
+        Number(item.quantity || 1)
+      );
+
+      return (
+        total +
+        product.price * quantity
+      );
+    },
+    0
+  );
+};
+
+
+/* =========================================================
+   PAYMENT METHOD UI
    ========================================================= */
 
 let selectedPaymentMethod = "crypto";
 let selectedCrypto = "btc";
 
+const cardPaymentOption =
+  document.getElementById(
+    "cardPaymentOption"
+  );
 
-function setPaymentMethod(method) {
+const cryptoPaymentOption =
+  document.getElementById(
+    "cryptoPaymentOption"
+  );
+
+const cryptoOptions =
+  document.getElementById(
+    "cryptoOptions"
+  );
+
+const cryptoCurrencyButtons =
+  document.querySelectorAll(
+    ".crypto-currency"
+  );
+
+
+const setPaymentMethod = (
+  method
+) => {
   selectedPaymentMethod = method;
 
-  document
-    .querySelectorAll("[data-payment-method]")
-    .forEach((element) => {
-      element.classList.toggle(
-        "active",
-        element.dataset.paymentMethod === method
-      );
-    });
+  cardPaymentOption?.classList.toggle(
+    "active",
+    method === "card"
+  );
 
-  const cryptoSection =
-    document.getElementById("cryptoPaymentSection");
+  cryptoPaymentOption?.classList.toggle(
+    "active",
+    method === "crypto"
+  );
 
-  const cardSection =
-    document.getElementById("cardPaymentSection");
-
-  if (cryptoSection) {
-    cryptoSection.style.display =
-      method === "crypto" ? "" : "none";
+  if (cryptoOptions) {
+    cryptoOptions.hidden =
+      method !== "crypto";
   }
+};
 
-  if (cardSection) {
-    cardSection.style.display =
-      method === "card" ? "" : "none";
+
+cardPaymentOption?.addEventListener(
+  "click",
+  () => {
+    setPaymentMethod("card");
   }
-}
+);
 
 
-function setCryptoCurrency(currency) {
-  selectedCrypto = currency;
+cryptoPaymentOption?.addEventListener(
+  "click",
+  () => {
+    setPaymentMethod("crypto");
+  }
+);
 
-  document
-    .querySelectorAll("[data-crypto]")
-    .forEach((element) => {
-      element.classList.toggle(
-        "active",
-        element.dataset.crypto === currency
-      );
-    });
-}
+
+cryptoCurrencyButtons.forEach(
+  (button) => {
+    button.addEventListener(
+      "click",
+      () => {
+        cryptoCurrencyButtons.forEach(
+          (item) => {
+            item.classList.remove(
+              "active"
+            );
+          }
+        );
+
+        button.classList.add(
+          "active"
+        );
+
+        selectedCrypto =
+          button.dataset.crypto ||
+          "btc";
+      }
+    );
+  }
+);
 
 
 /* =========================================================
-   CRYPTO MAP
+   CHECKOUT SUMMARY
+   ========================================================= */
+
+const renderCheckout = () => {
+  const cart = getCart();
+
+  const itemsContainer =
+    document.getElementById(
+      "checkoutItems"
+    );
+
+  const subtotalElement =
+    document.getElementById(
+      "checkoutSubtotal"
+    );
+
+  const totalElement =
+    document.getElementById(
+      "checkoutTotal"
+    );
+
+  if (!itemsContainer) {
+    return;
+  }
+
+  if (!cart.length) {
+    itemsContainer.innerHTML = `
+      <div class="checkout-empty">
+        <p>Your cart is empty.</p>
+        <a href="index.html">
+          Return to marketplace →
+        </a>
+      </div>
+    `;
+
+    if (subtotalElement) {
+      subtotalElement.textContent =
+        currencyFormatter.format(0);
+    }
+
+    if (totalElement) {
+      totalElement.textContent =
+        currencyFormatter.format(0);
+    }
+
+    return;
+  }
+
+  let subtotal = 0;
+
+  itemsContainer.innerHTML =
+    cart
+      .map((item) => {
+        const product =
+          findProduct(item.name);
+
+        if (!product) {
+          return "";
+        }
+
+        const quantity =
+          Math.max(
+            1,
+            Number(
+              item.quantity || 1
+            )
+          );
+
+        const lineTotal =
+          product.price *
+          quantity;
+
+        subtotal += lineTotal;
+
+        return `
+          <div class="checkout-item">
+
+            <div class="checkout-item-image">
+              <img
+                src="${product.image}"
+                alt="${product.title}"
+              />
+            </div>
+
+            <div class="checkout-item-info">
+              <strong>
+                ${product.title}
+              </strong>
+
+              <span>
+                Qty ${quantity}
+              </span>
+            </div>
+
+            <div class="checkout-item-price">
+              ${currencyFormatter.format(
+                lineTotal
+              )}
+            </div>
+
+          </div>
+        `;
+      })
+      .join("");
+
+  if (subtotalElement) {
+    subtotalElement.textContent =
+      currencyFormatter.format(
+        subtotal
+      );
+  }
+
+  if (totalElement) {
+    totalElement.textContent =
+      currencyFormatter.format(
+        subtotal
+      );
+  }
+};
+
+
+/* =========================================================
+   CREATE SERVER ORDER
+   ========================================================= */
+
+const createServerOrder =
+  async ({
+    formData,
+    cart,
+    paymentMethod,
+    cryptoCurrency
+  }) => {
+
+    const fullName =
+      formData
+        .get("fullName")
+        ?.trim() || "";
+
+    const email =
+      formData
+        .get("email")
+        ?.trim() || "";
+
+    const phone =
+      formData
+        .get("phone")
+        ?.trim() || "";
+
+    const country =
+      formData
+        .get("country")
+        ?.trim() || "";
+
+    const address =
+      formData
+        .get("address")
+        ?.trim() || "";
+
+    const postalCode =
+      formData
+        .get("postalCode")
+        ?.trim() || "";
+
+    const state =
+      formData
+        .get("state")
+        ?.trim() || "";
+
+    /*
+      The current checkout form does not
+      appear to have a dedicated city field.
+
+      Until one is added to checkout.html,
+      use the state as a fallback so the
+      backend receives the required field.
+    */
+
+    const city =
+      formData
+        .get("city")
+        ?.trim() ||
+      state;
+
+    const items =
+      cart.map((item) => {
+        const product =
+          findProduct(item.name);
+
+        if (!product) {
+          return null;
+        }
+
+        return {
+          productId:
+            product.id,
+
+          quantity:
+            Math.max(
+              1,
+              Number(
+                item.quantity || 1
+              )
+            )
+        };
+      })
+      .filter(Boolean);
+
+    const response =
+      await fetch(
+        getApiUrl(
+          "/api/orders/create"
+        ),
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+
+          body: JSON.stringify({
+            paymentMethod,
+
+            cryptoCurrency:
+              paymentMethod ===
+              "crypto"
+                ? cryptoCurrency
+                : null,
+
+            customer: {
+              name: fullName,
+              email,
+              phone,
+              address,
+              city,
+              state,
+              country,
+              postalCode
+            },
+
+            items
+          })
+        }
+      );
+
+    let data;
+
+    try {
+      data =
+        await response.json();
+    } catch {
+      throw new Error(
+        "The AUCTION X API returned an invalid response."
+      );
+    }
+
+    if (
+      !response.ok ||
+      !data.success ||
+      !data.order
+    ) {
+      throw new Error(
+        data.error ||
+        "Unable to create your order."
+      );
+    }
+
+    return data.order;
+  };
+
+
+/* =========================================================
+   CARD PAYMENT
+   ========================================================= */
+
+const initializeCardPayment =
+  async ({
+    email,
+    reference
+  }) => {
+
+    const response =
+      await fetch(
+        getApiUrl(
+          "/api/payment/initialize"
+        ),
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+
+          body: JSON.stringify({
+            email,
+            reference,
+
+            callback_url:
+              `${window.location.origin}/confirmation.html`
+          })
+        }
+      );
+
+    let data;
+
+    try {
+      data =
+        await response.json();
+    } catch {
+      throw new Error(
+        "Invalid payment server response."
+      );
+    }
+
+    if (
+      !response.ok ||
+      !data.success
+    ) {
+      throw new Error(
+        data.error ||
+        "Unable to initialize card payment."
+      );
+    }
+
+    return data;
+  };
+
+
+/* =========================================================
+   CRYPTO PAYMENT
    ========================================================= */
 
 const cryptoCurrencyMap = {
@@ -181,255 +635,86 @@ const cryptoCurrencyMap = {
 };
 
 
-/* =========================================================
-   RENDER CHECKOUT
-   ========================================================= */
+const createCryptoPayment =
+  async ({
+    reference,
+    crypto
+  }) => {
 
-function renderCheckout() {
-  const cart = getCart();
+    const payCurrency =
+      cryptoCurrencyMap[
+        crypto
+      ];
 
-  const itemsContainer =
-    document.getElementById("checkoutItems");
+    if (!payCurrency) {
+      throw new Error(
+        "Unsupported cryptocurrency selected."
+      );
+    }
 
-  const subtotalElement =
-    document.getElementById("subtotal");
+    const response =
+      await fetch(
+        getApiUrl(
+          "/api/crypto/create"
+        ),
+        {
+          method: "POST",
 
-  const totalElement =
-    document.getElementById("total");
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
 
-  let subtotal = 0;
+          body: JSON.stringify({
+            order_id:
+              reference,
 
-  if (!itemsContainer) return;
+            pay_currency:
+              payCurrency
+          })
+        }
+      );
 
-  itemsContainer.innerHTML = cart
-    .map((item) => {
-      const product = findProduct(item);
+    let data;
 
-      if (!product) return "";
+    try {
+      data =
+        await response.json();
+    } catch {
+      throw new Error(
+        "Invalid NOWPayments server response."
+      );
+    }
 
-      const quantity =
-        Math.max(1, Number(item.quantity || 1));
+    if (
+      !response.ok ||
+      !data.success ||
+      !data.payment
+    ) {
+      throw new Error(
+        data.error ||
+        "Unable to create crypto payment."
+      );
+    }
 
-      const lineTotal =
-        product.price * quantity;
-
-      subtotal += lineTotal;
-
-      return `
-        <div class="checkout-item">
-          <div class="checkout-item-image">
-            <img
-              src="${product.image}"
-              alt="${product.title}"
-            />
-          </div>
-
-          <div class="checkout-item-info">
-            <strong>${product.title}</strong>
-            <span>Qty ${quantity}</span>
-          </div>
-
-          <div class="checkout-item-price">
-            ${currencyFormatter.format(lineTotal)}
-          </div>
-        </div>
-      `;
-    })
-    .join("");
-
-  if (subtotalElement) {
-    subtotalElement.textContent =
-      currencyFormatter.format(subtotal);
-  }
-
-  if (totalElement) {
-    totalElement.textContent =
-      currencyFormatter.format(subtotal);
-  }
-}
-
-
-/* =========================================================
-   CALCULATE CART TOTAL
-   ========================================================= */
-
-function calculateCartTotal() {
-  const cart = getCart();
-
-  return cart.reduce((total, item) => {
-    const product = findProduct(item);
-
-    if (!product) return total;
-
-    const quantity =
-      Math.max(1, Number(item.quantity || 1));
-
-    return total + product.price * quantity;
-  }, 0);
-}
-
-
-/* =========================================================
-   CREATE SERVER ORDER
-   ========================================================= */
-
-async function createServerOrder({
-  customer,
-  items,
-  paymentMethod,
-  cryptoCurrency
-}) {
-  const payload = {
-    paymentMethod,
-
-    cryptoCurrency:
-      paymentMethod === "crypto"
-        ? cryptoCurrency
-        : null,
-
-    customer: {
-      name: customer.name,
-      email: customer.email,
-      phone: customer.phone,
-      address: customer.address,
-      city: customer.city,
-      state: customer.state,
-      country: customer.country,
-      postalCode: customer.postalCode
-    },
-
-    items
+    return data;
   };
 
-  console.log(
-    "AUCTION X — Creating server order:",
-    payload
-  );
-
-  const response = await fetch(
-    getApiUrl("/api/orders/create"),
-    {
-      method: "POST",
-
-      headers: {
-        "Content-Type": "application/json"
-      },
-
-      body: JSON.stringify(payload)
-    }
-  );
-
-  const data =
-    await parseApiResponse(response);
-
-  console.log(
-    "AUCTION X — Server order created:",
-    data
-  );
-
-  return data;
-}
-
 
 /* =========================================================
-   CREATE CRYPTO PAYMENT
-   ========================================================= */
-
-async function createCryptoPayment({
-  amount,
-  reference,
-  email,
-  crypto
-}) {
-  const payCurrency =
-    cryptoCurrencyMap[crypto];
-
-  if (!payCurrency) {
-    throw new Error(
-      "Unsupported cryptocurrency selected."
-    );
-  }
-
-  const payload = {
-    amount,
-    pay_currency: payCurrency,
-    order_id: reference,
-    customer_email: email
-  };
-
-  console.log(
-    "AUCTION X — Creating crypto payment:",
-    payload
-  );
-
-  const response = await fetch(
-    getApiUrl("/api/crypto/create"),
-    {
-      method: "POST",
-
-      headers: {
-        "Content-Type": "application/json"
-      },
-
-      body: JSON.stringify(payload)
-    }
-  );
-
-  const data =
-    await parseApiResponse(response);
-
-  console.log(
-    "AUCTION X — Crypto payment created:",
-    data
-  );
-
-  return data;
-}
-
-
-/* =========================================================
-   CARD PAYMENT
-   ========================================================= */
-
-async function initializeCardPayment({
-  email,
-  amount,
-  reference
-}) {
-  const response = await fetch(
-    getApiUrl("/api/payment/initialize"),
-    {
-      method: "POST",
-
-      headers: {
-        "Content-Type": "application/json"
-      },
-
-      body: JSON.stringify({
-        email,
-        amount,
-        reference,
-        callback_url:
-          `${window.location.origin}/confirmation.html`
-      })
-    }
-  );
-
-  return parseApiResponse(response);
-}
-
-
-/* =========================================================
-   CHECKOUT FORM
+   FORM
    ========================================================= */
 
 const checkoutForm =
-  document.getElementById("checkoutForm");
+  document.getElementById(
+    "checkoutForm"
+  );
 
 
 checkoutForm?.addEventListener(
   "submit",
   async (event) => {
+
     event.preventDefault();
 
     const submitButton =
@@ -437,329 +722,309 @@ checkoutForm?.addEventListener(
         'button[type="submit"]'
       );
 
+    const cart =
+      getCart();
+
+    if (!cart.length) {
+      alert(
+        "Your cart is empty."
+      );
+
+      return;
+    }
+
+    const formData =
+      new FormData(
+        checkoutForm
+      );
+
+    const fullName =
+      formData
+        .get("fullName")
+        ?.trim();
+
+    const email =
+      formData
+        .get("email")
+        ?.trim();
+
+    const phone =
+      formData
+        .get("phone")
+        ?.trim();
+
+    const country =
+      formData
+        .get("country")
+        ?.trim();
+
+    const address =
+      formData
+        .get("address")
+        ?.trim();
+
+    const postalCode =
+      formData
+        .get("postalCode")
+        ?.trim();
+
+    const state =
+      formData
+        .get("state")
+        ?.trim();
+
+    if (
+      !fullName ||
+      !email ||
+      !phone ||
+      !country ||
+      !address ||
+      !postalCode ||
+      !state
+    ) {
+      alert(
+        "Please complete all delivery information."
+      );
+
+      return;
+    }
+
+
+    if (
+      selectedPaymentMethod ===
+      "crypto" &&
+      !cryptoCurrencyMap[
+        selectedCrypto
+      ]
+    ) {
+      alert(
+        "Please select a supported cryptocurrency."
+      );
+
+      return;
+    }
+
+
+    if (submitButton) {
+      submitButton.disabled = true;
+
+      submitButton.dataset.originalText =
+        submitButton.textContent;
+
+      submitButton.textContent =
+        "Creating Order...";
+    }
+
+
     try {
 
-      /* -----------------------------------------
-         CART CHECK
-         ----------------------------------------- */
-
-      const cart = getCart();
-
-      if (!cart.length) {
-        alert("Your cart is empty.");
-        return;
-      }
-
-
-      /* -----------------------------------------
-         REQUIRED FIELD CHECK
-         ----------------------------------------- */
-
-      const requiredInputs =
-        checkoutForm.querySelectorAll(
-          "input[required], select[required], textarea[required]"
-        );
-
-      let missingField = null;
-
-      requiredInputs.forEach((input) => {
-        const value =
-          String(input.value || "").trim();
-
-        if (!value && !missingField) {
-          missingField = input;
-        }
-      });
-
-      if (missingField) {
-        missingField.focus();
-
-        alert(
-          `Please complete your ${
-            missingField.name ||
-            missingField.id ||
-            "required information"
-          }.`
-        );
-
-        return;
-      }
-
-
-      /* -----------------------------------------
-         FORM DATA
-         ----------------------------------------- */
-
-      const formData =
-        new FormData(checkoutForm);
-
-
-      /* -----------------------------------------
-         CUSTOMER DATA
-         ----------------------------------------- */
-
-      const customer = {
-        name: String(
-          formData.get("fullName") || ""
-        ).trim(),
-
-        email: String(
-          formData.get("email") || ""
-        ).trim(),
-
-        phone: String(
-          formData.get("phone") || ""
-        ).trim(),
-
-        address: String(
-          formData.get("address") || ""
-        ).trim(),
-
-        city: String(
-          formData.get("city") || ""
-        ).trim(),
-
-        state: String(
-          formData.get("state") || ""
-        ).trim(),
-
-        country: String(
-          formData.get("country") || ""
-        ).trim(),
-
-        postalCode: String(
-          formData.get("postalCode") || ""
-        ).trim()
-      };
-
-
-      /* -----------------------------------------
-         CUSTOMER VALIDATION
-         ----------------------------------------- */
-
-      for (const [field, value] of Object.entries(customer)) {
-        if (!value) {
-          const input =
-            checkoutForm.querySelector(
-              `[name="${field}"], #${field}`
-            );
-
-          input?.focus();
-
-          throw new Error(
-            `Please complete your ${field}.`
-          );
-        }
-      }
-
-
-      /* -----------------------------------------
-         EMAIL VALIDATION
-         ----------------------------------------- */
-
-      const emailPattern =
-        /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-      if (!emailPattern.test(customer.email)) {
-        throw new Error(
-          "Please enter a valid email address."
-        );
-      }
-
-
-      /* -----------------------------------------
-         PAYMENT VALIDATION
-         ----------------------------------------- */
-
-      if (
-        !["crypto", "card"].includes(
-          selectedPaymentMethod
-        )
-      ) {
-        throw new Error(
-          "Please select a valid payment method."
-        );
-      }
-
-      if (
-        selectedPaymentMethod === "crypto" &&
-        !cryptoCurrencyMap[selectedCrypto]
-      ) {
-        throw new Error(
-          "Please select a valid cryptocurrency."
-        );
-      }
-
-
-      /* -----------------------------------------
-         DISABLE BUTTON
-         ----------------------------------------- */
-
-      if (submitButton) {
-        submitButton.disabled = true;
-
-        submitButton.dataset.originalText =
-          submitButton.textContent;
-
-        submitButton.textContent =
-          "PROCESSING...";
-      }
-
-
-      /* -----------------------------------------
-         CART ITEMS
-         ----------------------------------------- */
-
-      const serverItems =
-        cart
-          .map((item) => {
-            const product =
-              findProduct(item);
-
-            if (!product) {
-              return null;
-            }
-
-            return {
-              productId: product.id,
-              title: product.title,
-              quantity: Math.max(
-                1,
-                Number(item.quantity || 1)
-              )
-            };
-          })
-          .filter(Boolean);
-
-
-      if (!serverItems.length) {
-        throw new Error(
-          "No valid products were found in your cart."
-        );
-      }
-
-
-      /* -----------------------------------------
-         TOTAL
-         ----------------------------------------- */
-
-      const amount =
-        calculateCartTotal();
-
-      if (!Number.isFinite(amount) || amount <= 0) {
-        throw new Error(
-          "Unable to calculate your order total."
-        );
-      }
-
-
-      /* -----------------------------------------
-         CREATE SERVER ORDER
-         ----------------------------------------- */
+      /* ===================================================
+         STEP 1 — CREATE SERVER ORDER
+         =================================================== */
 
       const serverOrder =
         await createServerOrder({
-          customer,
-          items: serverItems,
-
+          formData,
+          cart,
           paymentMethod:
             selectedPaymentMethod,
-
           cryptoCurrency:
-            selectedPaymentMethod === "crypto"
+            selectedPaymentMethod ===
+            "crypto"
               ? selectedCrypto
               : null
         });
 
 
-      const order =
-        serverOrder.order;
+      console.log(
+        "AUCTION X SERVER ORDER CREATED:",
+        serverOrder
+      );
 
 
-      if (!order || !order.reference) {
-        throw new Error(
-          "The server created an invalid order."
-        );
-      }
+      /*
+        Always use the server-generated
+        reference.
+
+        Do NOT use a locally generated
+        reference here.
+      */
+
+      const reference =
+        serverOrder.reference;
 
 
-      /* -----------------------------------------
-         CRYPTO PAYMENT
-         ----------------------------------------- */
+      saveOrder({
+        ...serverOrder,
+
+        payment_provider:
+          selectedPaymentMethod ===
+          "crypto"
+            ? "nowpayments"
+            : "paystack"
+      });
+
+
+      /* ===================================================
+         STEP 2 — CARD
+         =================================================== */
 
       if (
-        selectedPaymentMethod === "crypto"
+        selectedPaymentMethod ===
+        "card"
       ) {
 
         const payment =
+          await initializeCardPayment({
+            email,
+            reference
+          });
+
+
+        const updatedOrder = {
+          ...serverOrder,
+
+          payment_method:
+            "card",
+
+          payment_provider:
+            "paystack",
+
+          payment_authorization_url:
+            payment.authorization_url,
+
+          payment_reference:
+            payment.reference
+        };
+
+
+        saveOrder(
+          updatedOrder
+        );
+
+
+        if (
+          !payment.authorization_url
+        ) {
+          throw new Error(
+            "Payment authorization URL was not returned."
+          );
+        }
+
+
+        window.location.href =
+          payment.authorization_url;
+
+        return;
+      }
+
+
+      /* ===================================================
+         STEP 3 — CRYPTO
+         =================================================== */
+
+      if (
+        selectedPaymentMethod ===
+        "crypto"
+      ) {
+
+        if (submitButton) {
+          submitButton.textContent =
+            "Creating Crypto Payment...";
+        }
+
+
+        const payment =
           await createCryptoPayment({
-            amount,
-            reference:
-              order.reference,
-            email:
-              customer.email,
+            reference,
             crypto:
               selectedCrypto
           });
 
 
+        console.log(
+          "AUCTION X NOWPAYMENTS RESPONSE:",
+          payment
+        );
+
+
         const paymentData =
-          payment.payment || payment;
+          payment.payment;
 
 
-        /* ---------------------------------------
-           SAVE ORDER
-           --------------------------------------- */
+        if (
+          !paymentData ||
+          !paymentData.payment_id ||
+          !paymentData.pay_address ||
+          !paymentData.pay_amount ||
+          !paymentData.pay_currency
+        ) {
+
+          console.error(
+            "Incomplete NOWPayments response:",
+            payment
+          );
+
+          throw new Error(
+            "NOWPayments created the payment, but the payment address information was not returned."
+          );
+        }
+
 
         const updatedOrder = {
-          ...order,
+          ...serverOrder,
 
-          customer,
+          payment_method:
+            "crypto",
 
-          items: serverItems,
+          payment_provider:
+            "nowpayments",
 
-          paymentMethod: "crypto",
-
-          cryptoCurrency:
+          crypto_currency:
             selectedCrypto,
 
-          payment: {
-            payment_id:
-              paymentData.payment_id || null,
+          payment_id:
+            paymentData.payment_id,
 
-            payment_status:
-              paymentData.payment_status ||
-              "waiting",
+          payment_status:
+            paymentData.payment_status,
 
-            pay_address:
-              paymentData.pay_address || null,
+          pay_address:
+            paymentData.pay_address,
 
-            pay_amount:
-              paymentData.pay_amount || null,
+          pay_amount:
+            paymentData.pay_amount,
 
-            pay_currency:
-              paymentData.pay_currency ||
-              cryptoCurrencyMap[
-                selectedCrypto
-              ],
+          pay_currency:
+            paymentData.pay_currency,
 
-            price_amount:
-              paymentData.price_amount ||
-              amount,
+          price_amount:
+            paymentData.price_amount,
 
-            price_currency:
-              paymentData.price_currency ||
-              "usd"
-          }
+          price_currency:
+            paymentData.price_currency,
+
+          expiration_estimate_date:
+            paymentData.expiration_estimate_date
         };
 
 
-        saveOrder(updatedOrder);
+        saveOrder(
+          updatedOrder
+        );
 
 
-        /* ---------------------------------------
-           REDIRECT
-           --------------------------------------- */
+        console.log(
+          "AUCTION X CRYPTO PAYMENT CREATED:",
+          updatedOrder
+        );
+
+
+        /*
+          The confirmation page can now
+          read auctionXLastOrder and
+          display the payment details.
+        */
 
         window.location.href =
           "confirmation.html";
@@ -767,54 +1032,9 @@ checkoutForm?.addEventListener(
         return;
       }
 
-
-      /* -----------------------------------------
-         CARD PAYMENT
-         ----------------------------------------- */
-
-      if (
-        selectedPaymentMethod === "card"
-      ) {
-
-        const payment =
-          await initializeCardPayment({
-            email:
-              customer.email,
-
-            amount,
-
-            reference:
-              order.reference
-          });
-
-
-        saveOrder({
-          ...order,
-
-          customer,
-
-          items: serverItems,
-
-          paymentMethod: "card",
-
-          payment
-        });
-
-
-        if (
-          payment.authorization_url
-        ) {
-          window.location.href =
-            payment.authorization_url;
-
-          return;
-        }
-
-        throw new Error(
-          "Card payment could not be initialized."
-        );
-      }
-
+      throw new Error(
+        "Unsupported payment method."
+      );
 
     } catch (error) {
 
@@ -824,16 +1044,18 @@ checkoutForm?.addEventListener(
       );
 
       alert(
-        error?.message ||
-        "Unable to process your order. Please try again."
+        error.message ||
+        "Something went wrong while creating your order."
       );
 
       if (submitButton) {
-        submitButton.disabled = false;
+        submitButton.disabled =
+          false;
 
         submitButton.textContent =
-          submitButton.dataset.originalText ||
-          "CONTINUE TO PAYMENT";
+          submitButton.dataset
+            .originalText ||
+          "Continue to Payment";
       }
     }
   }
@@ -841,47 +1063,11 @@ checkoutForm?.addEventListener(
 
 
 /* =========================================================
-   PAYMENT METHOD EVENTS
-   ========================================================= */
-
-document
-  .querySelectorAll("[data-payment-method]")
-  .forEach((element) => {
-    element.addEventListener(
-      "click",
-      () => {
-        setPaymentMethod(
-          element.dataset.paymentMethod
-        );
-      }
-    );
-  });
-
-
-/* =========================================================
-   CRYPTO EVENTS
-   ========================================================= */
-
-document
-  .querySelectorAll("[data-crypto]")
-  .forEach((element) => {
-    element.addEventListener(
-      "click",
-      () => {
-        setCryptoCurrency(
-          element.dataset.crypto
-        );
-      }
-    );
-  });
-
-
-/* =========================================================
-   INITIAL STATE
+   INITIALIZE
    ========================================================= */
 
 renderCheckout();
 
-setPaymentMethod("crypto");
-
-setCryptoCurrency("btc");
+setPaymentMethod(
+  selectedPaymentMethod
+);
