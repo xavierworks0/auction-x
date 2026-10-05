@@ -2855,8 +2855,9 @@ async function startServer() {
     await initializeDatabase();
 
     app.listen(
-      PORT,
-      () => {
+  PORT,
+  "0.0.0.0",
+  () => {
         console.log(
           "======================================"
         );
